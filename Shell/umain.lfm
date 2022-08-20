@@ -7089,6 +7089,7 @@ object frmMain: TfrmMain
       Height = 202
       Top = 112
       Width = 189
+      OnClick = btImage3Click
       OnMouseEnter = btImage1MouseEnter
       OnMouseLeave = btImage1MouseLeave
       OnMouseMove = btImage1MouseMove
@@ -30912,6 +30913,17 @@ object frmMain: TfrmMain
       Font.Height = -42
       ParentColor = False
       ParentFont = False
+    end
+    object pnlPrograms2: TPanel
+      Left = 28
+      Height = 50
+      Top = 73
+      Width = 170
+      BevelInner = bvRaised
+      BevelOuter = bvLowered
+      TabOrder = 2
+      Visible = False
+      OnResize = pnlPrograms2Resize
     end
   end
   object Timer1: TTimer

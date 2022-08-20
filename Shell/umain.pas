@@ -38,6 +38,7 @@ type
     btImagePrograms: TImage;
     lbTime: TLabel;
     lbTime1: TLabel;
+    pnlPrograms2: TPanel;
     pnlPrograms: TPanel;
     pnlFiles: TPanel;
     pnlMainForm: TPanel;
@@ -64,6 +65,7 @@ type
     procedure pnlLoginFormResize(Sender: TObject);
     procedure pnlLoginResize(Sender: TObject);
     procedure pnlMainFormResize(Sender: TObject);
+    procedure pnlPrograms2Resize(Sender: TObject);
     procedure pnlProgramsResize(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ProgramButtonClick(Sender: TObject);
@@ -359,7 +361,11 @@ end;
 
 procedure TfrmMain.btImageProgramsClick(Sender: TObject);
 begin
-  pnlPrograms.Visible:= not pnlPrograms.Visible;
+  if (Config.Values['programspos'] = '') or ((Config.Values['programspos'] = 'bottom')) then
+     pnlPrograms.Visible:= not pnlPrograms.Visible
+  else
+    if (Config.Values['programspos'] = 'left') or ((Config.Values['programspos'] = 'right')) then
+      pnlPrograms2.Visible:= not pnlPrograms2.Visible;
 end;
 
 procedure TfrmMain.btLogoutClick(Sender: TObject);
@@ -395,7 +401,6 @@ var
   i, bleft, bwidth, bTop, allwidth, gap: integer;
   img: TImage;
 begin
-//  gap := self.Width div 50;
   bwidth := self.Width div 8;
   bTop := self.Height div 5;
   gap := bwidth div 4;
@@ -424,7 +429,53 @@ begin
   pnlPrograms.Height := Self.Height div 15;
   pnlPrograms.Width := Self.Width;
 
+  if (Config.Values['programspos'] = 'left') then
+    begin
+      pnlPrograms2.Width := self.Width div 30;
+      pnlPrograms2.Top := 0;
+      pnlPrograms2.Height := Self.Height;
+      pnlPrograms2.Left := self.Width div 30;
+    end
+  else
+    begin
+      pnlPrograms2.Width := self.Width div 30;
+      pnlPrograms2.Top := 0;
+      pnlPrograms2.Height := Self.Height;
+      pnlPrograms2.Left := self.Width - pnlPrograms2.Width*2;
+    end;
+
   lbTime1.Width:=self.width;
+end;
+
+procedure TfrmMain.pnlPrograms2Resize(Sender: TObject);
+var
+  i, bleft, bwidth, bTop, allTop, gap: integer;
+  img: TImage;
+  lab: TLabel;
+begin
+  bwidth := pnlPrograms2.Width div 5 * 3;
+  gap := bwidth div 2;
+  bleft := (pnlPrograms2.Width div 2) - (bwidth div 2);
+  allTop := bwidth * ProgramList.Count + gap * (ProgramList.Count - 1);
+
+  for i := 0 to ProgramList.Count - 1 do
+    begin
+      img := TImage(pnlPrograms2.FindSubComponent('btProgram_2' + IntToStr(i + 1)));
+      bleft := (pnlPrograms2.Width div 2) - (bwidth div 2);
+      bTop := (pnlMainForm.Height div 2) - (allTop div 2) + i * bwidth + i * gap;
+      img.Left := bleft;
+      img.Height := bwidth;
+      img.Width := bwidth;
+      img.Top := bTop;
+
+      imgBtnWidthHeight := bwidth;
+      imgBtnTop := bTop;
+
+      lab := TLabel(pnlPrograms2.FindSubComponent('lbProgram_2' + IntToStr(i + 1)));
+      lab.Left := bleft;
+      lab.Top := img.Top + img.Height;
+      lab.left := (img.Left + img.Width div 2) - lab.Width div 2;
+    end;
 end;
 
 procedure TfrmMain.pnlProgramsResize(Sender: TObject);
@@ -552,6 +603,7 @@ var
 begin
   for i := 0 to ProgramList.Count - 1 do
     begin
+      //Панель прграмм внизу
       img := TImage.Create(pnlPrograms);
       img.Parent := pnlPrograms;
       bleft := (pnlPrograms.Width div 2) - (ProgramList.Count * 30 div 2) + i * 30;
@@ -565,8 +617,9 @@ begin
       img.Stretch:=true;
       img.Transparent:=true;
       img.OnClick := @ProgramButtonClick;
-      img.OnMouseMove := @btImgMouseMove;
-      img.OnMouseLeave := @btImgMouseLeave;
+      img.OnMouseMove := @btImage1MouseMove;
+      img.OnMouseLeave := @btImage1MouseLeave;
+      img.OnMouseEnter := @btImage1MouseEnter;
       if FileExists(PMyProgram(ProgramList[i])^.Icon) then
         begin
           img.Picture.LoadFromFile(PMyProgram(ProgramList[i])^.Icon);
@@ -576,6 +629,34 @@ begin
       lab.Parent := pnlPrograms;
       lab.Caption := PMyProgram(ProgramList[i])^.Name;
       lab.Name := 'lbProgram' + IntToStr(i + 1);
+
+      // Панель программ слева
+
+      img := TImage.Create(pnlPrograms2);
+      img.Parent := pnlPrograms2;
+      bleft := 0;
+      img.Left := bleft;
+      img.Height := 30;
+      img.Width := 30;
+      img.Top := (pnlPrograms2.Height div 2) - (ProgramList.Count * 30 div 2) + i * 30;
+      img.Name := 'btProgram_2' + IntToStr(i + 1);
+      img.Caption := PMyProgram(ProgramList[i])^.Filename;
+      img.Tag := i;
+      img.Stretch:=true;
+      img.Transparent:=true;
+      img.OnClick := @ProgramButtonClick;
+      img.OnMouseMove := @btImage1MouseMove;
+      img.OnMouseLeave := @btImage1MouseLeave;
+      img.OnMouseEnter := @btImage1MouseEnter;
+      if FileExists(PMyProgram(ProgramList[i])^.Icon) then
+        begin
+          img.Picture.LoadFromFile(PMyProgram(ProgramList[i])^.Icon);
+        end;
+
+      lab := TLabel.Create(pnlPrograms2);
+      lab.Parent := pnlPrograms2;
+      lab.Caption := PMyProgram(ProgramList[i])^.Name;
+      lab.Name := 'lbProgram_2' + IntToStr(i + 1);
     end;
 end;
 
