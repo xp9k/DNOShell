@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 882
+  Left = 2640
   Height = 494
-  Top = 276
+  Top = 280
   Width = 708
   BorderIcons = []
   BorderStyle = bsNone
@@ -2191,75 +2191,6 @@ object frmMain: TfrmMain
       }
       Stretch = True
     end
-    object pnlLoginForm: TPanel
-      Left = 79
-      Height = 250
-      Top = 128
-      Width = 417
-      Anchors = [akTop]
-      BorderSpacing.Left = 480
-      BorderSpacing.Right = 480
-      ClientHeight = 250
-      ClientWidth = 417
-      Color = 12635184
-      ParentColor = False
-      ParentFont = False
-      TabOrder = 0
-      OnResize = pnlLoginFormResize
-      object bLogin: TButton
-        AnchorSideTop.Control = edPassword
-        AnchorSideTop.Side = asrBottom
-        Left = 6
-        Height = 54
-        Top = 45
-        Width = 135
-        Caption = 'Войти'
-        Font.Height = -26
-        OnClick = bLoginClick
-        ParentFont = False
-        TabOrder = 0
-      end
-      object bGuest: TButton
-        AnchorSideTop.Control = bLogin
-        AnchorSideTop.Side = asrBottom
-        Left = 10
-        Height = 25
-        Top = 99
-        Width = 130
-        Caption = 'Гость'
-        OnClick = bGuestClick
-        ParentFont = False
-        TabOrder = 1
-      end
-      object edLogin: TEdit
-        AnchorSideTop.Control = pnlLoginForm
-        Left = 38
-        Height = 22
-        Top = 1
-        Width = 80
-        AutoSize = False
-        Font.Height = -26
-        ParentFont = False
-        TabOrder = 2
-        Text = 'edLogin'
-      end
-      object edPassword: TEdit
-        AnchorSideTop.Control = edLogin
-        AnchorSideTop.Side = asrBottom
-        Left = 38
-        Height = 22
-        Top = 23
-        Width = 80
-        AutoSize = False
-        EchoMode = emPassword
-        Font.Height = -26
-        OnKeyPress = edPasswordKeyPress
-        ParentFont = False
-        PasswordChar = '*'
-        TabOrder = 3
-        Text = 'edPassword'
-      end
-    end
     object lbTime: TLabel
       Left = 0
       Height = 57
@@ -3051,6 +2982,76 @@ object frmMain: TfrmMain
       Proportional = True
       Stretch = True
       Transparent = True
+    end
+    object pnlLoginForm: TPanel
+      Left = 80
+      Height = 250
+      Top = 128
+      Width = 417
+      Anchors = [akTop]
+      BorderSpacing.Left = 480
+      BorderSpacing.Right = 480
+      BevelInner = bvRaised
+      BevelOuter = bvLowered
+      ClientHeight = 250
+      ClientWidth = 417
+      Color = 13031006
+      ParentColor = False
+      TabOrder = 0
+      OnResize = pnlLoginFormResize
+      object bLogin: TButton
+        AnchorSideTop.Control = edPassword
+        AnchorSideTop.Side = asrBottom
+        Left = 6
+        Height = 54
+        Top = 46
+        Width = 135
+        Caption = 'Войти'
+        Font.Height = -26
+        OnClick = bLoginClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object bGuest: TButton
+        AnchorSideTop.Control = bLogin
+        AnchorSideTop.Side = asrBottom
+        Left = 10
+        Height = 25
+        Top = 100
+        Width = 130
+        Caption = 'Гость'
+        OnClick = bGuestClick
+        ParentFont = False
+        TabOrder = 1
+      end
+      object edLogin: TEdit
+        AnchorSideTop.Control = pnlLoginForm
+        Left = 38
+        Height = 22
+        Top = 2
+        Width = 80
+        AutoSize = False
+        Font.Height = -26
+        ParentFont = False
+        TabOrder = 2
+        Text = 'edLogin'
+      end
+      object edPassword: TEdit
+        AnchorSideTop.Control = edLogin
+        AnchorSideTop.Side = asrBottom
+        Left = 38
+        Height = 22
+        Top = 24
+        Width = 80
+        AutoSize = False
+        EchoMode = emPassword
+        Font.Height = -26
+        OnKeyPress = edPasswordKeyPress
+        ParentFont = False
+        PasswordChar = '*'
+        TabOrder = 3
+        Text = 'edPassword'
+      end
     end
   end
   object pnlMainForm: TPanel

@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, Process, LCLType, ldapsend
-  {$IFDEF LINUX}, Unix
+  Buttons, Process, LCLType, ldapsend,
+  {$IFDEF LINUX} Unix
   {$ENDIF}
   ;
 
@@ -23,8 +23,8 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    bLogin: TButton;
     bGuest: TButton;
+    bLogin: TButton;
     btLogout: TButton;
     btPoweroff: TImage;
     edLogin: TEdit;
@@ -38,11 +38,11 @@ type
     btImagePrograms: TImage;
     lbTime: TLabel;
     lbTime1: TLabel;
+    pnlLoginForm: TPanel;
     pnlPrograms2: TPanel;
     pnlPrograms: TPanel;
     pnlFiles: TPanel;
     pnlMainForm: TPanel;
-    pnlLoginForm: TPanel;
     pnlLogin: TPanel;
     Timer1: TTimer;
     procedure bGuestClick(Sender: TObject);
@@ -293,12 +293,23 @@ end;
 procedure TfrmMain.btImage1Click(Sender: TObject);
 var
   s: string;
+  p: TProcess;
 begin
   {$IFDEF WINDOWS}
   ExecuteProcess(Config.Values['explorer'], profile);
   {$ENDIF}
   {$IFDEF LINUX}
-  RunCommand('/bin/bash',['-c', 'dolphin ' + UserFolder + '/files'], s);
+  try
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['explorer'] + ' ' + UserFolder + '/files');
+   p.Execute;
+  finally
+    p.free;
+  end;
+//  RunCommand('/bin/bash',['-c', 'dolphin ' + UserFolder + '/files'], s);
   {$ENDIF}
 end;
 
@@ -339,23 +350,44 @@ end;
 procedure TfrmMain.btImage2Click(Sender: TObject);
 var
   profile, s: string;
+  p: TProcess;
 begin
   {$IFDEF WINDOWS}
   profile := '--user-data-dir="' + UserFolder + '\.profile"';
   ExecuteProcess(Config.Values['internet'], profile);
   {$ENDIF}
   {$IFDEF LINUX}
-  profile := '--user-data-dir=' + UserFolder + '/.profile';
-  RunCommand('/bin/bash',['-c', Config.Values['internet'] + ' ' + profile], s);
+  try
+   profile := '--user-data-dir=' + UserFolder + '/.profile';
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['internet'] + ' ' + profile);
+   p.Parameters.Add(profile);
+   p.Execute;
+  finally
+    p.free;
+  end;
+  //RunCommand('/bin/bash',['-c', Config.Values['internet'] + ' ' + profile], s);
   {$ENDIF}
 end;
 
 procedure TfrmMain.btImage3Click(Sender: TObject);
 var
-  s: string;
+  p: TProcess;
 begin
   {$IFDEF LINUX}
-  RunCommand('/bin/bash',['-c', Config.Values['board']], s)
+  try
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['board']);
+   p.Execute;
+  finally
+    p.free;
+  end;
   {$ENDIF}
 end;
 
@@ -517,11 +549,22 @@ end;
 procedure TfrmMain.ProgramButtonClick(Sender: TObject);
 var
   s: string;
+  p: TProcess;
 begin
   with sender as TImage do
     begin
       {$IFDEF LINUX}
-        RunCommand('/bin/bash',['-c', PMyProgram(ProgramList[Tag])^.Filename], s);
+       try
+        p := TProcess.Create(nil);
+        p.ShowWindow := swoShow;
+        p.Executable := '/bin/bash';
+        p.Parameters.Add('-c');
+        p.Parameters.Add(PMyProgram(ProgramList[Tag])^.Filename);
+        p.Execute;
+       finally
+         p.free;
+       end;
+//        RunCommand('/bin/bash',['-c', PMyProgram(ProgramList[Tag])^.Filename], s, [poDetached]);
       {$ENDIF}
     end;
 end;
