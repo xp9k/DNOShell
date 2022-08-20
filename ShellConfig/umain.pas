@@ -36,6 +36,7 @@ type
     btodExplorer: TButton;
     btodExplorerIcon: TButton;
     cd: TColorDialog;
+    cbProgramsPos: TComboBox;
     edDomain: TEdit;
     edBrowser: TEdit;
     edBoard: TEdit;
@@ -55,6 +56,7 @@ type
     Label10: TLabel;
     Label11: TLabel;
     Label12: TLabel;
+    Label13: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -204,6 +206,12 @@ begin
   Config.Values['board'] := edBoard.Text;
   Config.Values['boardicon'] := edBoardIcon.Text;
 
+  case cbProgramsPos.ItemIndex of
+    0: Config.Values['programspos'] := 'bottom';
+    1: Config.Values['programspos'] := 'left';
+    2: Config.Values['programspos'] := 'right';
+  end;
+
   ClearConfigPrograms;
   for i := 1 to 20 do
     begin
@@ -281,6 +289,13 @@ begin
   edBrowserIcon.Text:=Config.Values['interneticon'];
   edBoard.Text:=Config.Values['board'];
   edBoardIcon.Text:=Config.Values['boardicon'];
+
+  if (Config.Values['programspos'] = '') or (Config.Values['programspos'] = 'bottom') then
+    cbProgramsPos.ItemIndex:=0
+  else if (Config.Values['programspos'] = 'left') then
+    cbProgramsPos.ItemIndex:=1
+  else if (Config.Values['programspos'] = 'right') then
+    cbProgramsPos.ItemIndex:=2;
 
   edBackground.Text:=Config.Values['bg'];
   if Config.Values['bgcolor'] <> '' then pnlColor.Color := StringToColor(Config.Values['bgcolor']);

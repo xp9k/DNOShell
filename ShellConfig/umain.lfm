@@ -1,11 +1,11 @@
 object frmMain: TfrmMain
-  Left = 2800
-  Height = 354
-  Top = 650
+  Left = 1464
+  Height = 388
+  Top = 552
   Width = 532
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Конфигуратор программ'
-  ClientHeight = 354
+  ClientHeight = 388
   ClientWidth = 532
   Constraints.MinHeight = 208
   Constraints.MinWidth = 416
@@ -15,7 +15,7 @@ object frmMain: TfrmMain
   object Panel2: TPanel
     Left = 0
     Height = 44
-    Top = 310
+    Top = 344
     Width = 532
     Align = alClient
     ClientHeight = 44
@@ -46,7 +46,7 @@ object frmMain: TfrmMain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 310
+    Height = 344
     Top = 0
     Width = 532
     ActivePage = TabSheet1
@@ -56,15 +56,15 @@ object frmMain: TfrmMain
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Основные'
-      ClientHeight = 281
+      ClientHeight = 315
       ClientWidth = 528
       object Panel1: TPanel
         Left = 0
-        Height = 281
+        Height = 315
         Top = 0
         Width = 528
         Align = alClient
-        ClientHeight = 281
+        ClientHeight = 315
         ClientWidth = 528
         TabOrder = 0
         object edDomain: TEdit
@@ -346,16 +346,40 @@ object frmMain: TfrmMain
             TabOrder = 3
           end
         end
+        object Label13: TLabel
+          Left = 212
+          Height = 15
+          Top = 284
+          Width = 208
+          Caption = 'Расположение панели программ'
+          ParentColor = False
+        end
+        object cbProgramsPos: TComboBox
+          Left = 424
+          Height = 23
+          Top = 280
+          Width = 100
+          ItemHeight = 0
+          ItemIndex = 0
+          Items.Strings = (
+            'Снизу'
+            'Слева'
+            'Справа'
+          )
+          Style = csOwnerDrawFixed
+          TabOrder = 8
+          Text = 'Снизу'
+        end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Программы'
-      ClientHeight = 281
+      ClientHeight = 315
       ClientWidth = 528
       object lbPrograms: TListBox
         AnchorSideBottom.Control = btAdd
         Left = 0
-        Height = 243
+        Height = 277
         Top = 0
         Width = 154
         Anchors = [akTop, akLeft, akBottom]
@@ -451,7 +475,7 @@ object frmMain: TfrmMain
       object btAdd: TButton
         Left = 8
         Height = 25
-        Top = 246
+        Top = 280
         Width = 69
         Anchors = [akLeft, akBottom]
         Caption = 'Добавить'
@@ -461,7 +485,7 @@ object frmMain: TfrmMain
       object btRemove: TButton
         Left = 83
         Height = 25
-        Top = 246
+        Top = 280
         Width = 69
         Anchors = [akLeft, akBottom]
         Caption = 'Удалить'
@@ -507,7 +531,7 @@ object frmMain: TfrmMain
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 192
-    Top = 344
+    Left = 24
+    Top = 48
   end
 end

@@ -431,14 +431,14 @@ begin
 
   if (Config.Values['programspos'] = 'left') then
     begin
-      pnlPrograms2.Width := self.Width div 30;
+      pnlPrograms2.Width := self.Width div 20;
       pnlPrograms2.Top := 0;
       pnlPrograms2.Height := Self.Height;
-      pnlPrograms2.Left := self.Width div 30;
+      pnlPrograms2.Left := self.Width div 20;
     end
   else
     begin
-      pnlPrograms2.Width := self.Width div 30;
+      pnlPrograms2.Width := self.Width div 20;
       pnlPrograms2.Top := 0;
       pnlPrograms2.Height := Self.Height;
       pnlPrograms2.Left := self.Width - pnlPrograms2.Width*2;
