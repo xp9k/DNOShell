@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, Process, LCLType, ldapsend,
+  Buttons, Process, LCLType, ldapsend, StrUtils,
   {$IFDEF LINUX} Unix
   {$ENDIF}
   ;
@@ -18,6 +18,12 @@ type
     Filename: string;
     Icon: string;
     Name: string;
+  end;
+
+  PMyProcess = ^TMyProcess;
+  TMyProcess = record
+    Process: TProcess;
+    Icon: TBitmap;
   end;
 
   { TfrmMain }
@@ -36,10 +42,10 @@ type
     btImage3: TImage;
     btReboot: TImage;
     btImagePrograms: TImage;
+    ImageList1: TImageList;
     lbTime: TLabel;
     lbTime1: TLabel;
     pnlLoginForm: TPanel;
-    pnlPrograms2: TPanel;
     pnlPrograms: TPanel;
     pnlFiles: TPanel;
     pnlMainForm: TPanel;
@@ -65,10 +71,10 @@ type
     procedure pnlLoginFormResize(Sender: TObject);
     procedure pnlLoginResize(Sender: TObject);
     procedure pnlMainFormResize(Sender: TObject);
-    procedure pnlPrograms2Resize(Sender: TObject);
     procedure pnlProgramsResize(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ProgramButtonClick(Sender: TObject);
+    procedure ProgramCloseButtonClick(Sender: TObject);
   private
     CanClose: boolean;
     ProgramList: TList;
@@ -81,14 +87,15 @@ type
     tmpHeight: integer;
     tmpTop: integer;
     tmpLeft: integer;
+    ProcessList: TList;
     procedure LoadDefaults;
     function CreateUser(user: string): boolean;
     function LoadPrograms: boolean;
     procedure ArrangePrograms;
-    procedure btImgMouseMove(Sender: TObject; Shift: TShiftState; X,
-              Y: Integer);
-    procedure btImgMouseLeave(Sender: TObject);
     procedure LocalizeDate;
+    procedure CheckForProcessRun;
+    function IsProcessExecuted(ProcessName: string): boolean;
+    function GetProcessListIndexByName(ProcessName: string): Integer;
   public
 
   end;
@@ -144,6 +151,7 @@ begin
   if FileExists(Config.Values['boardicon']) then
     btImage3.Picture.LoadFromFile(Config.Values['boardicon']);
 
+  ProcessList := TList.Create;
   ProgramList := TList.Create;
   LoadPrograms;
   ArrangePrograms;
@@ -157,12 +165,34 @@ end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var
+  p: TProcess;
 begin
-  if (ssCtrl in Shift) and (ssShift in Shift) and (Key = VK_F2) then
-   begin
-     CanClose:=true;
-     frmMain.Close;
-   end;
+  if (ssCtrl in Shift) and (ssShift in Shift) then
+    begin
+      if (Key = VK_F2) then
+       begin
+         CanClose:=true;
+         frmMain.Close;
+       end;
+      if (Key = VK_F3) then
+       begin
+        try
+          p := TProcess.Create(nil);
+          p.InheritHandles := False;
+          p.Options := [];
+          p.ShowWindow := swoShow;
+          p.Executable := Application.ExeName;
+          p.Parameters.Add('-c');
+          p.Parameters.Add(Application.ExeName);
+          p.Execute;
+        finally
+          p.free;
+        end;
+         CanClose:=true;
+         frmMain.Close;
+       end;
+    end;
 end;
 
 
@@ -201,7 +231,7 @@ procedure TfrmMain.pnlLoginResize(Sender: TObject);
 var
   bleft, bwidth, bHeight, bTop, allwidth: integer;
 begin
-  bwidth := self.Width div 5;
+  bwidth := self.Width div 8;
   bHeight := self.Height div 5;
   bTop := self.Height div 3;
   allwidth := bwidth;
@@ -232,6 +262,7 @@ begin
     begin
       Config.Free;
       ProgramList.Free;
+      ProcessList.Free;
       CloseAction := caFree;
     end;
 end;
@@ -257,6 +288,8 @@ var
   ldap: TLDAPsend;
   SearchAttributes: TStringList;
 begin
+  if (edLogin.Text = '') or (edPassword.Text = '') then exit;
+
   SearchAttributes := TStringList.Create;
   ldap:= TLDAPsend.Create;
   SearchAttributes.Add('*');
@@ -393,18 +426,30 @@ end;
 
 procedure TfrmMain.btImageProgramsClick(Sender: TObject);
 begin
-  if (Config.Values['programspos'] = '') or ((Config.Values['programspos'] = 'bottom')) then
-     pnlPrograms.Visible:= not pnlPrograms.Visible
-  else
-    if (Config.Values['programspos'] = 'left') or ((Config.Values['programspos'] = 'right')) then
-      pnlPrograms2.Visible:= not pnlPrograms2.Visible;
+  CheckForProcessRun;
+  pnlProgramsResize(self);
+  pnlPrograms.Visible:= not pnlPrograms.Visible
 end;
 
 procedure TfrmMain.btLogoutClick(Sender: TObject);
+var
+  i: integer;
 begin
   edLogin.Text:='';
   edPassword.Text:='';
   pnlLogin.BringToFront;
+  for i := ProcessList.Count - 1 downto 0 do
+    begin
+      PMyProcess(ProcessList[i])^.Process.Terminate(0);
+      PMyProcess(ProcessList[i])^.Process.Free;
+      ProcessList.Delete(i);
+    end;
+  for i := 0 to ProgramList.Count - 1 do
+    begin
+      TImage(pnlPrograms.FindSubComponent('btProgramClose' + IntToStr(i + 1))).Visible := false;
+    end;
+  pnlMainFormResize(self);
+  pnlPrograms.Visible := False;
 end;
 
 procedure TfrmMain.btPoweroffClick(Sender: TObject);
@@ -457,86 +502,93 @@ begin
   btLogout.Top := self.Height - btLogout.Height - btLogout.Height div 2;
   btLogout.Left := self.Width div 2 - btLogout.Width div 2;
 
-  pnlPrograms.top := btImagePrograms.Top + btImagePrograms.Height + self.Height div 50;
-  pnlPrograms.Height := Self.Height div 15;
-  pnlPrograms.Width := Self.Width;
-
-  if (Config.Values['programspos'] = 'left') then
+  if (Config.Values['programspos'] = '') or (Config.Values['programspos'] = 'bottom') then
     begin
-      pnlPrograms2.Width := self.Width div 20;
-      pnlPrograms2.Top := 0;
-      pnlPrograms2.Height := Self.Height;
-      pnlPrograms2.Left := self.Width div 20;
+     pnlPrograms.top := btImagePrograms.Top + btImagePrograms.Height + self.Height div 50;
+     pnlPrograms.Height := Self.Height div 15;
+     pnlPrograms.Width := Self.Width;
+    end
+  else if (Config.Values['programspos'] = 'left') then
+    begin
+      pnlPrograms.Width := self.Width div 25;
+      pnlPrograms.Top := 0;
+      pnlPrograms.Height := Self.Height;
+      pnlPrograms.Left := pnlPrograms.Width;
     end
   else
     begin
-      pnlPrograms2.Width := self.Width div 20;
-      pnlPrograms2.Top := 0;
-      pnlPrograms2.Height := Self.Height;
-      pnlPrograms2.Left := self.Width - pnlPrograms2.Width*2;
+      pnlPrograms.Width := self.Width div 25;
+      pnlPrograms.Top := 0;
+      pnlPrograms.Height := Self.Height;
+      pnlPrograms.Left := self.Width - pnlPrograms.Width*2;
     end;
 
   lbTime1.Width:=self.width;
 end;
 
-procedure TfrmMain.pnlPrograms2Resize(Sender: TObject);
-var
-  i, bleft, bwidth, bTop, allTop, gap: integer;
-  img: TImage;
-  lab: TLabel;
-begin
-  bwidth := pnlPrograms2.Width div 5 * 3;
-  gap := bwidth div 2;
-  bleft := (pnlPrograms2.Width div 2) - (bwidth div 2);
-  allTop := bwidth * ProgramList.Count + gap * (ProgramList.Count - 1);
-
-  for i := 0 to ProgramList.Count - 1 do
-    begin
-      img := TImage(pnlPrograms2.FindSubComponent('btProgram_2' + IntToStr(i + 1)));
-      bleft := (pnlPrograms2.Width div 2) - (bwidth div 2);
-      bTop := (pnlMainForm.Height div 2) - (allTop div 2) + i * bwidth + i * gap;
-      img.Left := bleft;
-      img.Height := bwidth;
-      img.Width := bwidth;
-      img.Top := bTop;
-
-      imgBtnWidthHeight := bwidth;
-      imgBtnTop := bTop;
-
-      lab := TLabel(pnlPrograms2.FindSubComponent('lbProgram_2' + IntToStr(i + 1)));
-      lab.Left := bleft;
-      lab.Top := img.Top + img.Height;
-      lab.left := (img.Left + img.Width div 2) - lab.Width div 2;
-    end;
-end;
-
 procedure TfrmMain.pnlProgramsResize(Sender: TObject);
 var
-  i, bleft, bwidth, bTop, allwidth, gap: integer;
-  img: TImage;
+  i, bleft, bwidth, bTop, allwidth, allTop, gap: integer;
+  img, imgClose: TImage;
   lab: TLabel;
 begin
-  bwidth := pnlPrograms.Height div 5 * 3;
-  bTop := pnlPrograms.Height div 5;
-  gap := bwidth div 2;
-  allwidth := bwidth * ProgramList.Count + gap * (ProgramList.Count - 1);
 
-  for i := 0 to ProgramList.Count - 1 do
+  if (Config.Values['programspos'] = '') or (Config.Values['programspos'] = 'bottom') then
     begin
-      img := TImage(pnlPrograms.FindSubComponent('btProgram' + IntToStr(i + 1)));
-      bleft := (pnlMainForm.Width div 2) - (allwidth div 2) + i * bwidth + i * gap;
-      img.Left := bleft;
-      img.Height := bwidth;
-      img.Width := bwidth;
-      img.Top := bTop;
+      bwidth := pnlPrograms.Height div 5 * 3;
+      bTop := pnlPrograms.Height div 5;
+      gap := bwidth div 2;
+      allwidth := bwidth * ProgramList.Count + gap * (ProgramList.Count - 1);
 
-      imgBtnWidthHeight := bwidth;
-      imgBtnTop := bTop;
+      for i := 0 to ProgramList.Count - 1 do
+        begin
+          img := TImage(pnlPrograms.FindSubComponent('btProgram' + IntToStr(i + 1)));
+          bleft := (pnlMainForm.Width div 2) - (allwidth div 2) + i * bwidth + i * gap;
+          img.Left := bleft;
+          img.Height := bwidth;
+          img.Width := bwidth;
+          img.Top := bTop;
 
-      lab := TLabel(pnlPrograms.FindSubComponent('lbProgram' + IntToStr(i + 1)));
-      lab.Left := bleft;
-      lab.Top := img.Top + img.Height;
-      lab.left := (img.Left + img.Width div 2) - lab.Width div 2;
+          imgClose := TImage(pnlPrograms.FindSubComponent('btProgramClose' + IntToStr(i + 1)));
+          imgClose.Width := img.Width div 2;
+          imgClose.Height := imgClose.Width;
+          imgClose.Left := (img.Left + img.Width) - (imgClose.Width div 3) * 2;
+          imgClose.Top := img.Top - (imgClose.Height div 2);
+
+          lab := TLabel(pnlPrograms.FindSubComponent('lbProgram' + IntToStr(i + 1)));
+          lab.Left := bleft;
+          lab.Top := img.Top + img.Height;
+          lab.left := (img.Left + img.Width div 2) - lab.Width div 2;
+        end;
+    end
+  else
+    begin
+      bwidth := pnlPrograms.Width div 5 * 3;
+      gap := bwidth div 2;
+      bleft := (pnlPrograms.Width div 2) - (bwidth div 2);
+      allTop := bwidth * ProgramList.Count + gap * (ProgramList.Count - 1);
+
+      for i := 0 to ProgramList.Count - 1 do
+        begin
+          img := TImage(pnlPrograms.FindSubComponent('btProgram' + IntToStr(i + 1)));
+          bleft := (pnlPrograms.Width div 2) - (bwidth div 2);
+          bTop := (pnlMainForm.Height div 2) - (allTop div 2) + i * bwidth + i * gap;
+          img.Left := bleft;
+          img.Height := bwidth;
+          img.Width := bwidth;
+          img.Top := bTop;
+
+          imgClose := TImage(pnlPrograms.FindSubComponent('btProgramClose' + IntToStr(i + 1)));
+          imgClose.Width := img.Width div 2;
+          imgClose.Height := imgClose.Width;
+          imgClose.Left := (img.Left + img.Width) - (imgClose.Width div 3) * 2;
+          imgClose.Top := img.Top - (imgClose.Height div 2);
+
+          lab := TLabel(pnlPrograms.FindSubComponent('lbProgram' + IntToStr(i + 1)));
+          lab.Left := bleft;
+          lab.Top := img.Top + img.Height;
+          lab.left := (img.Left + img.Width div 2) - lab.Width div 2;
+        end;
     end;
 end;
 
@@ -550,22 +602,57 @@ procedure TfrmMain.ProgramButtonClick(Sender: TObject);
 var
   s: string;
   p: TProcess;
+  proc: PMyProcess;
+  ProgramName: string;
+  imgClose: TImage;
 begin
   with sender as TImage do
     begin
       {$IFDEF LINUX}
-       try
-        p := TProcess.Create(nil);
-        p.ShowWindow := swoShow;
-        p.Executable := '/bin/bash';
-        p.Parameters.Add('-c');
-        p.Parameters.Add(PMyProgram(ProgramList[Tag])^.Filename);
-        p.Execute;
-       finally
-         p.free;
-       end;
-//        RunCommand('/bin/bash',['-c', PMyProgram(ProgramList[Tag])^.Filename], s, [poDetached]);
+       ProgramName := PMyProgram(ProgramList[Tag])^.Filename;
+       if IsProcessExecuted(ProgramName) then
+         begin
+
+         end
+       else
+         begin
+           try
+            p := TProcess.Create(nil);
+            p.ShowWindow := swoShow;
+            p.Executable := '/bin/bash';
+            p.Parameters.Add('-c');
+            p.Parameters.Add(ProgramName);
+            p.Execute;
+
+            New(proc);
+            proc^.Icon := Picture.Bitmap;
+            proc^.Process := p;
+
+            ProcessList.Add(proc);
+
+            imgClose := TImage(pnlPrograms.FindComponent('btProgramClose' + IntToStr(Tag + 1)));
+            imgClose.Visible := True;
+//            CheckForProcessRun;
+           finally
+           end;
+         end;
       {$ENDIF}
+    end;
+end;
+
+procedure TfrmMain.ProgramCloseButtonClick(Sender: TObject);
+var
+  ProcIndex: integer;
+begin
+  with Sender as TImage do
+    begin
+      ProcIndex := GetProcessListIndexByName(PMyProgram(ProgramList[Tag])^.Filename);
+      if ProcIndex >= 0 then
+        begin;
+          PMyProcess(ProcessList[ProcIndex])^.Process.Terminate(0);
+          ProcessList.Delete(ProcIndex);
+        end;
+      Visible := false;
     end;
 end;
 
@@ -641,7 +728,7 @@ end;
 procedure TfrmMain.ArrangePrograms;
 var
   i, bleft: integer;
-  img: TImage;
+  img, imgClose: TImage;
   lab: TLabel;
 begin
   for i := 0 to ProgramList.Count - 1 do
@@ -668,59 +755,25 @@ begin
           img.Picture.LoadFromFile(PMyProgram(ProgramList[i])^.Icon);
         end;
 
+      imgClose := TImage.Create(pnlPrograms);
+      imgClose.Stretch:=true;
+      imgClose.Transparent:=true;
+      ImageList1.GetBitmap(0, imgClose.Picture.Bitmap);
+      imgClose.Name := 'btProgramClose' + IntToStr(i + 1);
+      imgClose.Parent := pnlPrograms;
+
+      imgClose.OnClick := @ProgramCloseButtonClick;
+      imgClose.OnMouseMove := @btImage1MouseMove;
+      imgClose.OnMouseLeave := @btImage1MouseLeave;
+      imgClose.OnMouseEnter := @btImage1MouseEnter;
+      imgClose.Tag := i;
+      imgClose.BringToFront;
+      imgClose.Visible := false;
+
       lab := TLabel.Create(pnlPrograms);
       lab.Parent := pnlPrograms;
       lab.Caption := PMyProgram(ProgramList[i])^.Name;
       lab.Name := 'lbProgram' + IntToStr(i + 1);
-
-      // Панель программ слева
-
-      img := TImage.Create(pnlPrograms2);
-      img.Parent := pnlPrograms2;
-      bleft := 0;
-      img.Left := bleft;
-      img.Height := 30;
-      img.Width := 30;
-      img.Top := (pnlPrograms2.Height div 2) - (ProgramList.Count * 30 div 2) + i * 30;
-      img.Name := 'btProgram_2' + IntToStr(i + 1);
-      img.Caption := PMyProgram(ProgramList[i])^.Filename;
-      img.Tag := i;
-      img.Stretch:=true;
-      img.Transparent:=true;
-      img.OnClick := @ProgramButtonClick;
-      img.OnMouseMove := @btImage1MouseMove;
-      img.OnMouseLeave := @btImage1MouseLeave;
-      img.OnMouseEnter := @btImage1MouseEnter;
-      if FileExists(PMyProgram(ProgramList[i])^.Icon) then
-        begin
-          img.Picture.LoadFromFile(PMyProgram(ProgramList[i])^.Icon);
-        end;
-
-      lab := TLabel.Create(pnlPrograms2);
-      lab.Parent := pnlPrograms2;
-      lab.Caption := PMyProgram(ProgramList[i])^.Name;
-      lab.Name := 'lbProgram_2' + IntToStr(i + 1);
-    end;
-end;
-
-procedure TfrmMain.btImgMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-begin
-  with sender as TImage do
-    begin
-      Width := imgBtnWidthHeight + 10;
-      Height := imgBtnWidthHeight + 10;
-      top := imgBtnTop - 5;
-    end;
-end;
-
-procedure TfrmMain.btImgMouseLeave(Sender: TObject);
-begin
-  with sender as TImage do
-    begin
-      Width := imgBtnWidthHeight;
-      Height := imgBtnWidthHeight;
-      top := imgBtnTop;
     end;
 end;
 
@@ -746,6 +799,52 @@ begin
   DefaultFormatSettings.LongMonthNames[10]:='Октября';
   DefaultFormatSettings.LongMonthNames[11]:='Ноября';
   DefaultFormatSettings.LongMonthNames[12]:='Декабря';
+end;
+
+procedure TfrmMain.CheckForProcessRun;
+var
+  i, j: integer;
+  img: TImage;
+  imgClose: TImage;
+begin
+  for i := 0 to ProgramList.Count - 1 do
+    begin
+      imgClose := TImage(pnlPrograms.FindComponent('btProgramClose' + IntToStr(i + 1)));
+      if IsProcessExecuted(PMyProgram(ProgramList[i])^.Filename) then
+         imgClose.Visible := true
+      else
+         imgClose.Visible := false;
+    end;
+end;
+
+function TfrmMain.IsProcessExecuted(ProcessName: string): boolean;
+var
+  i: integer;
+begin
+  Result := false;
+  for i := 0 to ProcessList.Count - 1 do
+    begin
+      if PMyProcess(ProcessList[i])^.Process.Parameters[1] = ProcessName then
+        begin
+         Result := True;
+         Break;
+        end;
+    end;
+end;
+
+function TfrmMain.GetProcessListIndexByName(ProcessName: string): Integer;
+var
+  i: integer;
+begin
+  Result := -1;
+  for i := 0 to ProcessList.Count - 1 do
+    begin
+      if PMyProcess(ProcessList[i])^.Process.Parameters[1] = ProcessName then
+        begin
+         Result := i;
+         Break;
+        end;
+    end;
 end;
 
 end.
