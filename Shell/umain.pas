@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, Process, LCLType, ldapsend, StrUtils,
-  {$IFDEF LINUX} Unix
+  Buttons, Process, LCLType, ldapsend, StrUtils
+  {$IFDEF LINUX}, Unix
   {$ENDIF}
   ;
 
@@ -329,7 +329,7 @@ var
   p: TProcess;
 begin
   {$IFDEF WINDOWS}
-  ExecuteProcess(Config.Values['explorer'], profile);
+  ExecuteProcess(Config.Values['explorer'], UserFolder + '\files');
   {$ENDIF}
   {$IFDEF LINUX}
   try
@@ -608,7 +608,7 @@ var
 begin
   with sender as TImage do
     begin
-      {$IFDEF LINUX}
+
        ProgramName := PMyProgram(ProgramList[Tag])^.Filename;
        if IsProcessExecuted(ProgramName) then
          begin
@@ -619,9 +619,14 @@ begin
            try
             p := TProcess.Create(nil);
             p.ShowWindow := swoShow;
+            {$IFDEF LINUX}
             p.Executable := '/bin/bash';
             p.Parameters.Add('-c');
             p.Parameters.Add(ProgramName);
+            {$ENDIF}
+            {$IFDEF WINDOWS}
+            p.Executable := ProgramName;
+            {$ENDIF}
             p.Execute;
 
             New(proc);
@@ -636,7 +641,7 @@ begin
            finally
            end;
          end;
-      {$ENDIF}
+
     end;
 end;
 
@@ -660,6 +665,7 @@ procedure TfrmMain.LoadDefaults;
 begin
   Config.Add('domain=uvao.obr.mos.ru');
   {$IFDEF WINDOWS}
+  Config.Add('explorer=explorer.exe');
   Config.Add('browser=C:\');
   Config.Add('board=C:\');
   {$ENDIF}
@@ -667,8 +673,6 @@ begin
   Config.Add('explorer=dolphin');
   Config.Add('internet=/usr/bin/chromium-browser');
   Config.Add('board=/usr/bin/openboard');
-  {$ENDIF}
-
   Config.add('');
   Config.Add('program1=Kumir 2');
   Config.Add('icon1=/usr/share/icons/hicolor/64x64/apps/kumir2-classic.png');
@@ -685,6 +689,7 @@ begin
   Config.Add('program4=Scratch');
   Config.Add('icon4=/usr/share/icons/hicolor/128x128/apps/scratch.png');
   Config.Add('exec4=/usr/bin/scratch');
+  {$ENDIF}
 
 end;
 
@@ -824,7 +829,12 @@ begin
   Result := false;
   for i := 0 to ProcessList.Count - 1 do
     begin
-      if PMyProcess(ProcessList[i])^.Process.Parameters[1] = ProcessName then
+      {$IFDEF LINUX}
+      if (PMyProcess(ProcessList[i])^.Process.Parameters[1] = ProcessName) and (PMyProcess(ProcessList[i])^.Process.Running) then
+      {$ENDIF}
+      {$IFDEF WINDOWS}
+      if (PMyProcess(ProcessList[i])^.Process.Executable = ProcessName) and (PMyProcess(ProcessList[i])^.Process.Running) then
+      {$ENDIF}
         begin
          Result := True;
          Break;
@@ -839,7 +849,12 @@ begin
   Result := -1;
   for i := 0 to ProcessList.Count - 1 do
     begin
+      {$IFDEF LINUX}
       if PMyProcess(ProcessList[i])^.Process.Parameters[1] = ProcessName then
+      {$ENDIF}
+      {$IFDEF WINDOWS}
+      if PMyProcess(ProcessList[i])^.Process.Executable = ProcessName then
+      {$ENDIF}
         begin
          Result := i;
          Break;
