@@ -42,6 +42,8 @@ type
     btImage3: TImage;
     btReboot: TImage;
     btImagePrograms: TImage;
+    imgUser: TImage;
+    imgPassword: TImage;
     ImageList1: TImageList;
     lbTime: TLabel;
     lbTime1: TLabel;
@@ -143,13 +145,22 @@ begin
   if Config.Values['bgcolor'] <> '' then pnlLoginForm.Color := StringToColor(Config.Values['bgcolor']);
 
   if FileExists(Config.Values['explorericon']) then
-    btImage1.Picture.LoadFromFile(Config.Values['explorericon']);
+    btImage1.Picture.LoadFromFile(Config.Values['explorericon'])
+  else
+    ImageList1.GetBitmap(1, btImage1.Picture.Bitmap);
 
   if FileExists(Config.Values['interneticon']) then
-    btImage2.Picture.LoadFromFile(Config.Values['interneticon']);
+    btImage2.Picture.LoadFromFile(Config.Values['interneticon'])
+  else
+    ImageList1.GetBitmap(2, btImage2.Picture.Bitmap);
 
   if FileExists(Config.Values['boardicon']) then
-    btImage3.Picture.LoadFromFile(Config.Values['boardicon']);
+    btImage3.Picture.LoadFromFile(Config.Values['boardicon'])
+  else
+    ImageList1.GetBitmap(3, btImage3.Picture.Bitmap);
+
+  ImageList1.GetBitmap(6, btReboot.Picture.Bitmap);
+  ImageList1.GetBitmap(7, btPoweroff.Picture.Bitmap);
 
   ProcessList := TList.Create;
   ProgramList := TList.Create;
@@ -202,28 +213,40 @@ var
 begin
   gap := pnlLoginForm.Height div 20;
   bwidth := pnlLoginForm.Width div 5 * 4;
-  bHeight := pnlLoginForm.Height div 8;
+  bHeight := pnlLoginForm.Height div 10;
+
+  imgUser.Width := bHeight;
+  imgUser.Height := bHeight;
+  imgUser.Left:=bHeight;
+  ImageList1.GetBitmap(4, imgUser.Picture.Bitmap);
+
+  imgPassword.Width := bHeight;
+  imgPassword.Height := bHeight;
+  imgPassword.Left:=bHeight;
+  ImageList1.GetBitmap(5, imgPassword.Picture.Bitmap);
+
   edLogin.Width := bwidth;
   edLogin.Height := bHeight;
   edPassword.Width := bwidth;
   edPassword.Height := bHeight;
 
-  bleft := (pnlLoginForm.Width div 2) - (bwidth div 2);
-
-  edLogin.Left := bleft;
-  edPassword.Left := bleft;
+  edLogin.Left := imgUser.Width * 2;
+  edPassword.Left := imgPassword.Width * 2;
 
   bLogin.Width := pnlLoginForm.Width div 3;
   bLogin.Height := pnlLoginForm.Height div 3;
   bLogin.Left := (pnlLoginForm.Width div 2) - (bLogin.Width div 2);
 
+
   bGuest.Left := (pnlLoginForm.Width div 2) - (bGuest.Width div 2);
 
-  bTop := pnlLoginForm.Height div 8;
+//  bTop := pnlLoginForm.Height div 10;
   for i := 0 to pnlLoginForm.ControlCount - 1 do
     begin
-      pnlLoginForm.Controls[i].Top := btop;
-      pnlLoginForm.Controls[i].BorderSpacing.Top := gap;
+        begin
+          pnlLoginForm.Controls[i].Top := bHeight;
+          pnlLoginForm.Controls[i].BorderSpacing.Top := gap;
+        end;
     end;
 end;
 
