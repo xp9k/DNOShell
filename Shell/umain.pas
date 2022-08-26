@@ -26,12 +26,49 @@ type
     Icon: TBitmap;
   end;
 
+  { TImageButton }
+
+  TImageButton = class(TImage)
+    private
+      FLabel: Tlabel;
+      FOldTop: integer;
+      FOldLeft: integer;
+      FOldHeight: integer;
+      FOldWidth: integer;
+      FOnResize: TNotifyEvent;
+      FParent: TWinControl;
+      FMouseLeft: boolean;
+      function GetCaption: TCaption;
+      procedure SetCaption(const AValue: TCaption);
+      function GetFont: TFont;
+      procedure SetFont(const AValue: TFont);
+    protected
+      procedure Resize; override;
+      procedure MouseEnter(Sender: TObject);
+      procedure MouseLeave(Sender: TObject);
+      procedure MouseDown(Sender: TObject; Button: TMouseButton;
+                Shift: TShiftState; X, Y: Integer);
+      procedure MouseUp(Sender: TObject; Button: TMouseButton;
+                Shift: TShiftState; X, Y: Integer);
+      procedure MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+      procedure SetParent(NewParent: TWinControl); override;
+      procedure LabelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+      procedure LabelMouseLeave(Sender: TObject);
+    published
+      property OnResize;
+    public
+      property Parent: TWinControl read FParent write SetParent;
+      property Caption: TCaption read GetCaption write SetCaption;
+      property Font: TFont read GetFont write SetFont;
+      procedure OnLabelClick(Sender: TObject);
+      constructor Create(AOwner: TComponent); override;
+      destructor Destroy; override;
+//      procedure AfterConstruction; override;
+  end;
+
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    bGuest: TButton;
-    bLogin: TButton;
-    btLogout: TButton;
     btPoweroff: TImage;
     edLogin: TEdit;
     edPassword: TEdit;
@@ -42,12 +79,13 @@ type
     btImage3: TImage;
     btReboot: TImage;
     btImagePrograms: TImage;
+    btLogin: TImage;
     imgUser: TImage;
     imgPassword: TImage;
     ImageList1: TImageList;
+    lbLogin: TLabel;
     lbTime: TLabel;
     lbTime1: TLabel;
-    pnlLoginForm: TPanel;
     pnlPrograms: TPanel;
     pnlFiles: TPanel;
     pnlMainForm: TPanel;
@@ -56,13 +94,18 @@ type
     procedure bGuestClick(Sender: TObject);
     procedure bLoginClick(Sender: TObject);
     procedure btImage1Click(Sender: TObject);
+    procedure btImage1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure btImage1MouseEnter(Sender: TObject);
     procedure btImage1MouseLeave(Sender: TObject);
     procedure btImage1MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure btImage1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure btImage2Click(Sender: TObject);
     procedure btImage3Click(Sender: TObject);
     procedure btImageProgramsClick(Sender: TObject);
+    procedure btLoginClick(Sender: TObject);
     procedure btLogoutClick(Sender: TObject);
     procedure btPoweroffClick(Sender: TObject);
     procedure btRebootClick(Sender: TObject);
@@ -70,7 +113,13 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure pnlLoginFormResize(Sender: TObject);
+    procedure lbLoginMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure lbLoginMouseLeave(Sender: TObject);
+    procedure lbLoginMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure lbLoginMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure pnlLoginResize(Sender: TObject);
     procedure pnlMainFormResize(Sender: TObject);
     procedure pnlProgramsResize(Sender: TObject);
@@ -78,19 +127,19 @@ type
     procedure ProgramButtonClick(Sender: TObject);
     procedure ProgramCloseButtonClick(Sender: TObject);
   private
+    imgbtLogin: TImageButton;
     CanClose: boolean;
     ProgramList: TList;
     ConfigFile: string;
     UserFolder: String ;
     Config: TStringList;
-    imgBtnWidthHeight: integer;
-    imgBtnTop: integer;
     tmpWidth: integer;
     tmpHeight: integer;
     tmpTop: integer;
     tmpLeft: integer;
     ProcessList: TList;
     procedure LoadDefaults;
+    procedure ResizeLoginForm(pnlTop, pnlLeft, pnlWidth, pnlHeight: integer);
     function CreateUser(user: string): boolean;
     function LoadPrograms: boolean;
     procedure ArrangePrograms;
@@ -99,7 +148,11 @@ type
     function IsProcessExecuted(ProcessName: string): boolean;
     function GetProcessListIndexByName(ProcessName: string): Integer;
   public
-
+    btExplorer: TImageButton;
+    btBrowser: TImageButton;
+    btBoard: TImageButton;
+    btLogout: TImageButton;
+    btGuest: TImageButton;
   end;
 
 var
@@ -109,16 +162,153 @@ implementation
 
 {$R *.lfm}
 
+{ TImageButton }
+
+procedure TImageButton.SetParent(NewParent: TWinControl);
+begin
+ inherited SetParent(NewParent);
+ FLabel.Parent := NewParent;
+end;
+
+procedure TImageButton.LabelMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+ FMouseLeft := false;
+ self.MouseMove(Sender, Shift, X, Y);
+end;
+
+procedure TImageButton.LabelMouseLeave(Sender: TObject);
+begin
+ FMouseLeft := false;
+ Self.MouseLeave(Sender);
+end;
+
+function TImageButton.GetCaption: TCaption;
+begin
+  Result := FLabel.Caption;
+end;
+
+procedure TImageButton.SetCaption(const AValue: TCaption);
+begin
+  FLabel.Caption := AValue;
+end;
+
+function TImageButton.GetFont: TFont;
+begin
+  Result := FLabel.Font;
+end;
+
+procedure TImageButton.SetFont(const AValue: TFont);
+begin
+  FLabel.Font := AValue;
+end;
+
+procedure TImageButton.OnLabelClick(Sender: TObject);
+begin
+  self.Click;
+end;
+
+procedure TImageButton.Resize;
+begin
+  inherited Resize;
+  FLabel.Left := Left + (Width div 2) - (FLabel.Width div 2);
+  FLabel.Top := Top + (Height div 2 - FLabel.Height div 2);
+end;
+
+procedure TImageButton.MouseEnter(Sender: TObject);
+begin
+  if FMouseLeft then
+    begin
+      FOldWidth := Width;
+      FOldHeight := Height;
+      FOldTop := Top;
+      FOldLeft := Left;
+    end;
+   FMouseLeft := False;
+end;
+
+procedure TImageButton.MouseLeave(Sender: TObject);
+begin
+  if not FMouseLeft then
+    begin
+      Width := FOldWidth;
+      Height := FOldHeight;
+      Top := FOldTop;
+      Left := FOldLeft;
+    end;
+  FMouseLeft := True;
+end;
+
+procedure TImageButton.MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if not FMouseLeft then
+    begin
+      Width := FOldWidth;
+      Height := FOldHeight;
+      Top := FOldTop;
+      Left := FOldLeft;
+    end;
+end;
+
+procedure TImageButton.MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if not FMouseLeft then
+    begin
+      Width := FOldWidth + FOldWidth div 10;
+      Height := FOldHeight + FOldHeight div 10;
+      Top := FOldTop - ((FOldHeight div 10) div 2);
+      Left := FOldLeft - ((Width div 10) div 2);
+    end;
+end;
+
+procedure TImageButton.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  if not FMouseLeft then
+    begin
+      Width := FOldWidth + FOldWidth div 10;
+      Height := FOldHeight + FOldHeight div 10;
+      Top := FOldTop - ((FOldHeight div 10) div 2);
+      Left := FOldLeft - ((Width div 10) div 2);
+    end;
+end;
+
+constructor TImageButton.Create(AOwner: TComponent);
+begin
+  FLabel := TLabel.Create(AOwner);
+  FLabel.BringToFront;
+  inherited Create(AOwner);
+  OnMouseEnter := @MouseEnter;
+  OnMouseLeave := @MouseLeave;
+  OnMouseMove := @MouseMove;
+  OnMouseDown := @MouseDown;
+  OnMouseUp := @MouseUp;
+
+  FMouseLeft := True;
+
+  FLabel.OnMouseMove := @LabelMouseMove;
+  FLabel.OnMouseLeave := @LabelMouseLeave;
+  FLabel.OnMouseDown := @MouseDown;
+  FLabel.OnMouseUp := @MouseUp;
+  FLabel.OnClick := @OnLabelClick;
+
+  Stretch := True;
+  Transparent := True;
+end;
+
+destructor TImageButton.Destroy;
+begin
+//  FLabel.Destroy;
+  inherited Destroy;
+end;
+
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   CanClose := false;
 
-  LocalizeDate;
-
-  Width:=Screen.Width;
-  Height:=Screen.Height;
   {$IFDEF WINDOWS}
   ConfigFile := SysUtils.GetEnvironmentVariable('appdata') + '\' + 'dnoshell.conf';
   {$ENDIF}
@@ -136,31 +326,105 @@ begin
       Config.SaveToFile(ConfigFile);
     end;
 
+  //Кнопка Файлового менеджера
+
+  btExplorer := TImageButton.Create(pnlMainForm);
+  btExplorer.Parent := pnlMainForm;
+  btExplorer.OnClick := @btImage1Click;
+  btExplorer.Name := 'imageBtn1';
+  if FileExists(Config.Values['explorericon']) then
+    btExplorer.Picture.LoadFromFile(Config.Values['explorericon'])
+  else
+    ImageList1.GetBitmap(1, btExplorer.Picture.Bitmap);
+
+  //Кнопка Интернет браузера
+
+  btBrowser:= TImageButton.Create(pnlMainForm);
+  btBrowser.Parent := pnlMainForm;
+  btBrowser.OnClick := @btImage2Click;
+  btBrowser.Name := 'imageBtn2';
+  if FileExists(Config.Values['explorericon']) then
+    btBrowser.Picture.LoadFromFile(Config.Values['interneticon'])
+  else
+    ImageList1.GetBitmap(2, btBrowser.Picture.Bitmap);
+
+  //Кнопка Доски
+
+  btBoard:= TImageButton.Create(pnlMainForm);
+  btBoard.Parent := pnlMainForm;
+  btBoard.OnClick := @btImage3Click;
+  btBoard.Name := 'imageBtn3';
+  if FileExists(Config.Values['explorericon']) then
+    btBoard.Picture.LoadFromFile(Config.Values['boardicon'])
+  else
+    ImageList1.GetBitmap(3, btBoard.Picture.Bitmap);
+
+  // Кнопка логина
+
+  imgbtLogin := TImageButton.Create(pnlLogin);
+  imgbtLogin.Parent := pnlLogin;
+  imgbtLogin.Name := 'imgbtnLogin';
+  imgbtLogin.Caption := 'Войти';
+  imgbtLogin.Picture.Bitmap := btLogin.Picture.Bitmap;
+  imgbtLogin.Font.Color:= clWhite;
+  imgbtLogin.Font.Style:= [fsBold];
+  imgbtLogin.Font.Size:=20;
+
+  imgbtLogin.OnClick := @btLoginClick;
+
+  //Кнопка Входа Гостя
+
+  btGuest:= TImageButton.Create(pnlLogin);
+  btGuest.Parent := pnlLogin;
+  btGuest.OnClick := @bGuestClick;
+  btGuest.Name := 'btGuest';
+  btGuest.Picture.Bitmap := btLogin.Picture.Bitmap;
+  btGuest.Caption := 'Гость';
+  btGuest.Font.Color:= clWhite;
+
+  //Кнопка Выхода из учетной записи
+
+  btLogout:= TImageButton.Create(pnlMainForm);
+  btLogout.Parent := pnlMainForm;
+  btLogout.OnClick := @btLogoutClick;
+  btLogout.Name := 'btLogout';
+  btLogout.Picture.Bitmap := btLogin.Picture.Bitmap;
+  btLogout.Caption := 'Выход';
+  btLogout.Font.Color:= clWhite;
+
+  LocalizeDate;
+
+  Width:=Screen.Width;
+  Height:=Screen.Height;
+
   if FileExists(Config.Values['bg']) then
     begin
       image0.Picture.LoadFromFile(Config.Values['bg']);
       image1.Picture.LoadFromFile(Config.Values['bg']);
     end;
 
-  if Config.Values['bgcolor'] <> '' then pnlLoginForm.Color := StringToColor(Config.Values['bgcolor']);
+//  if Config.Values['bgcolor'] <> '' then pnlLoginForm.Color := StringToColor(Config.Values['bgcolor']);
 
-  if FileExists(Config.Values['explorericon']) then
-    btImage1.Picture.LoadFromFile(Config.Values['explorericon'])
-  else
-    ImageList1.GetBitmap(1, btImage1.Picture.Bitmap);
-
-  if FileExists(Config.Values['interneticon']) then
-    btImage2.Picture.LoadFromFile(Config.Values['interneticon'])
-  else
-    ImageList1.GetBitmap(2, btImage2.Picture.Bitmap);
-
-  if FileExists(Config.Values['boardicon']) then
-    btImage3.Picture.LoadFromFile(Config.Values['boardicon'])
-  else
-    ImageList1.GetBitmap(3, btImage3.Picture.Bitmap);
+  //if FileExists(Config.Values['explorericon']) then
+  //  btImage1.Picture.LoadFromFile(Config.Values['explorericon'])
+  //else
+  //  ImageList1.GetBitmap(1, btImage1.Picture.Bitmap);
+  //
+  //if FileExists(Config.Values['interneticon']) then
+  //  btImage2.Picture.LoadFromFile(Config.Values['interneticon'])
+  //else
+  //  ImageList1.GetBitmap(2, btImage2.Picture.Bitmap);
+  //
+  //if FileExists(Config.Values['boardicon']) then
+  //  btImage3.Picture.LoadFromFile(Config.Values['boardicon'])
+  //else
+  //  ImageList1.GetBitmap(3, btImage3.Picture.Bitmap);
 
   ImageList1.GetBitmap(6, btReboot.Picture.Bitmap);
   ImageList1.GetBitmap(7, btPoweroff.Picture.Bitmap);
+
+  ImageList1.GetBitmap(4, imgUser.Picture.Bitmap);
+  ImageList1.GetBitmap(5, imgPassword.Picture.Bitmap);
 
   ProcessList := TList.Create;
   ProgramList := TList.Create;
@@ -206,63 +470,38 @@ begin
     end;
 end;
 
-
-procedure TfrmMain.pnlLoginFormResize(Sender: TObject);
-var
-  bleft, bwidth, bHeight, bTop, i, gap: integer;
+procedure TfrmMain.lbLoginMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
-  gap := pnlLoginForm.Height div 20;
-  bwidth := pnlLoginForm.Width div 5 * 4;
-  bHeight := pnlLoginForm.Height div 10;
+  btImage1MouseDown(btLogin, Button, Shift, X, Y);
+end;
 
-  imgUser.Width := bHeight;
-  imgUser.Height := bHeight;
-  imgUser.Left:=bHeight;
-  ImageList1.GetBitmap(4, imgUser.Picture.Bitmap);
+procedure TfrmMain.lbLoginMouseLeave(Sender: TObject);
+begin
+  btImage1MouseLeave(btLogin);
+end;
 
-  imgPassword.Width := bHeight;
-  imgPassword.Height := bHeight;
-  imgPassword.Left:=bHeight;
-  ImageList1.GetBitmap(5, imgPassword.Picture.Bitmap);
+procedure TfrmMain.lbLoginMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  btImage1MouseMove(btLogin, Shift, X, Y);
+end;
 
-  edLogin.Width := bwidth;
-  edLogin.Height := bHeight;
-  edPassword.Width := bwidth;
-  edPassword.Height := bHeight;
-
-  edLogin.Left := imgUser.Width * 2;
-  edPassword.Left := imgPassword.Width * 2;
-
-  bLogin.Width := pnlLoginForm.Width div 3;
-  bLogin.Height := pnlLoginForm.Height div 3;
-  bLogin.Left := (pnlLoginForm.Width div 2) - (bLogin.Width div 2);
-
-
-  bGuest.Left := (pnlLoginForm.Width div 2) - (bGuest.Width div 2);
-
-//  bTop := pnlLoginForm.Height div 10;
-  for i := 0 to pnlLoginForm.ControlCount - 1 do
-    begin
-        begin
-          pnlLoginForm.Controls[i].Top := bHeight;
-          pnlLoginForm.Controls[i].BorderSpacing.Top := gap;
-        end;
-    end;
+procedure TfrmMain.lbLoginMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  btImage1MouseUp(btLogin, Button, Shift, X, Y);
 end;
 
 procedure TfrmMain.pnlLoginResize(Sender: TObject);
 var
   bleft, bwidth, bHeight, bTop, allwidth: integer;
 begin
-  bwidth := self.Width div 8;
+  bwidth := self.Width div 6;
   bHeight := self.Height div 5;
   bTop := self.Height div 3;
   allwidth := bwidth;
   bleft := (pnlMainForm.Width div 2) - (allwidth div 2);
-  pnlLoginForm.Left := bleft;
-  pnlLoginForm.Height := bHeight;
-  pnlLoginForm.Width := bwidth;
-  pnlLoginForm.Top := bTop;
 
   lbTime.Width := pnlLogin.Width;
 
@@ -275,6 +514,8 @@ begin
   btReboot.Height := btReboot.Width;
   btReboot.Top := btPoweroff.Top - btReboot.Height - btReboot.Height div 2;
   btReboot.Left := btReboot.Width div 2;
+
+  ResizeLoginForm(bTop, bleft, bwidth, bHeight);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -307,6 +548,160 @@ begin
 end;
 
 procedure TfrmMain.bLoginClick(Sender: TObject);
+begin
+end;
+
+procedure TfrmMain.btImage1Click(Sender: TObject);
+var
+  p: TProcess;
+  proc: PMyProcess;
+begin
+  {$IFDEF WINDOWS}
+  ExecuteProcess(Config.Values['explorer'], UserFolder + '\files');
+  {$ENDIF}
+  {$IFDEF LINUX}
+  try
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['explorer'] + ' ' + UserFolder + '/files');
+   p.Execute;
+
+   New(proc);
+   proc^.Process := p;
+
+   ProcessList.Add(proc);
+  finally
+//    p.free;
+  end;
+//  RunCommand('/bin/bash',['-c', 'dolphin ' + UserFolder + '/files'], s);
+  {$ENDIF}
+end;
+
+procedure TfrmMain.btImage1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  with Sender as TImage do
+    begin
+      Width := tmpWidth;
+      Height := tmpHeight;
+      Top := tmpTop;
+      Left := tmpLeft;
+    end;
+end;
+
+procedure TfrmMain.btImage1MouseEnter(Sender: TObject);
+begin
+  with Sender as TImage do
+    begin
+      tmpWidth := Width;
+      tmpHeight := Height;
+      tmpTop := Top;
+      tmpLeft := Left;
+    end;
+end;
+
+procedure TfrmMain.btImage1MouseLeave(Sender: TObject);
+begin
+  with Sender as TImage do
+    begin
+      Width := tmpWidth;
+      Height := tmpHeight;
+      Top := tmpTop;
+      Left := tmpLeft;
+    end;
+end;
+
+procedure TfrmMain.btImage1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  with Sender as TImage do
+    begin
+      Width := tmpWidth + tmpWidth div 10;
+      Height := tmpHeight + tmpHeight div 10;
+      Top := tmpTop - ((tmpHeight div 10) div 2);
+      Left := tmpLeft - ((tmpWidth div 10) div 2);
+    end;
+end;
+
+procedure TfrmMain.btImage1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  with Sender as TImage do
+    begin
+      Width := tmpWidth + tmpWidth div 10;
+      Height := tmpHeight + tmpHeight div 10;
+      Top := tmpTop - ((tmpHeight div 10) div 2);
+      Left := tmpLeft - ((tmpWidth div 10) div 2);
+    end;
+end;
+
+
+procedure TfrmMain.btImage2Click(Sender: TObject);
+var
+  profile, s: string;
+  p: TProcess;
+  proc: PMyProcess;
+begin
+  {$IFDEF WINDOWS}
+  profile := '--user-data-dir="' + UserFolder + '\.profile"';
+  ExecuteProcess(Config.Values['internet'], profile);
+  {$ENDIF}
+  {$IFDEF LINUX}
+  try
+   profile := '--user-data-dir=' + UserFolder + '/.profile';
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['internet'] + ' ' + profile);
+   p.Parameters.Add(profile);
+   p.Execute;
+
+   New(proc);
+   proc^.Process := p;
+
+   ProcessList.Add(proc);
+  finally
+ //   p.free;
+  end;
+  //RunCommand('/bin/bash',['-c', Config.Values['internet'] + ' ' + profile], s);
+  {$ENDIF}
+end;
+
+procedure TfrmMain.btImage3Click(Sender: TObject);
+var
+  p: TProcess;
+  proc: PMyProcess;
+begin
+  {$IFDEF LINUX}
+  try
+   p := TProcess.Create(nil);
+   p.ShowWindow := swoShow;
+   p.Executable := '/bin/bash';
+   p.Parameters.Add('-c');
+   p.Parameters.Add(Config.Values['board']);
+   p.Execute;
+
+   New(proc);
+   proc^.Process := p;
+
+   ProcessList.Add(proc);
+  finally
+//    p.free;
+  end;
+  {$ENDIF}
+end;
+
+procedure TfrmMain.btImageProgramsClick(Sender: TObject);
+begin
+  CheckForProcessRun;
+  pnlProgramsResize(self);
+  pnlPrograms.Visible:= not pnlPrograms.Visible
+end;
+
+procedure TfrmMain.btLoginClick(Sender: TObject);
 var
   ldap: TLDAPsend;
   SearchAttributes: TStringList;
@@ -344,114 +739,6 @@ begin
   ldap.Logout;
   ldap.Free;
   SearchAttributes.Free;
-end;
-
-procedure TfrmMain.btImage1Click(Sender: TObject);
-var
-  s: string;
-  p: TProcess;
-begin
-  {$IFDEF WINDOWS}
-  ExecuteProcess(Config.Values['explorer'], UserFolder + '\files');
-  {$ENDIF}
-  {$IFDEF LINUX}
-  try
-   p := TProcess.Create(nil);
-   p.ShowWindow := swoShow;
-   p.Executable := '/bin/bash';
-   p.Parameters.Add('-c');
-   p.Parameters.Add(Config.Values['explorer'] + ' ' + UserFolder + '/files');
-   p.Execute;
-  finally
-    p.free;
-  end;
-//  RunCommand('/bin/bash',['-c', 'dolphin ' + UserFolder + '/files'], s);
-  {$ENDIF}
-end;
-
-procedure TfrmMain.btImage1MouseEnter(Sender: TObject);
-begin
-  with Sender as TImage do
-    begin
-      tmpWidth:= Width;
-      tmpHeight:= Height;
-      tmpTop:= Top;
-      tmpLeft:= Left;
-    end;
-end;
-
-procedure TfrmMain.btImage1MouseLeave(Sender: TObject);
-begin
-  with Sender as TImage do
-    begin
-      Width := tmpWidth;
-      Height := tmpHeight;
-      Top := tmpTop;
-      Left := tmpLeft;
-    end;
-end;
-
-procedure TfrmMain.btImage1MouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-begin
-  with Sender as TImage do
-    begin
-      Width := tmpWidth + tmpWidth div 10;
-      Height := tmpHeight + tmpHeight div 10;
-      Top := tmpTop - ((tmpHeight div 10) div 2);
-      Left := tmpLeft - ((tmpWidth div 10) div 2);
-    end;
-end;
-
-procedure TfrmMain.btImage2Click(Sender: TObject);
-var
-  profile, s: string;
-  p: TProcess;
-begin
-  {$IFDEF WINDOWS}
-  profile := '--user-data-dir="' + UserFolder + '\.profile"';
-  ExecuteProcess(Config.Values['internet'], profile);
-  {$ENDIF}
-  {$IFDEF LINUX}
-  try
-   profile := '--user-data-dir=' + UserFolder + '/.profile';
-   p := TProcess.Create(nil);
-   p.ShowWindow := swoShow;
-   p.Executable := '/bin/bash';
-   p.Parameters.Add('-c');
-   p.Parameters.Add(Config.Values['internet'] + ' ' + profile);
-   p.Parameters.Add(profile);
-   p.Execute;
-  finally
-    p.free;
-  end;
-  //RunCommand('/bin/bash',['-c', Config.Values['internet'] + ' ' + profile], s);
-  {$ENDIF}
-end;
-
-procedure TfrmMain.btImage3Click(Sender: TObject);
-var
-  p: TProcess;
-begin
-  {$IFDEF LINUX}
-  try
-   p := TProcess.Create(nil);
-   p.ShowWindow := swoShow;
-   p.Executable := '/bin/bash';
-   p.Parameters.Add('-c');
-   p.Parameters.Add(Config.Values['board']);
-   p.Execute;
-  finally
-    p.free;
-  end;
-  {$ENDIF}
-end;
-
-procedure TfrmMain.btImageProgramsClick(Sender: TObject);
-begin
-  CheckForProcessRun;
-  pnlProgramsResize(self);
-  pnlPrograms.Visible:= not pnlPrograms.Visible
 end;
 
 procedure TfrmMain.btLogoutClick(Sender: TObject);
@@ -493,7 +780,7 @@ end;
 
 procedure TfrmMain.edPasswordKeyPress(Sender: TObject; var Key: char);
 begin
-  if key = #13 then bLoginClick(self);
+  if key = #13 then btLoginClick(self);
 end;
 
 procedure TfrmMain.pnlMainFormResize(Sender: TObject);
@@ -507,7 +794,7 @@ begin
   allwidth := bwidth * 3 + gap * 2;
   for i := 0 to 2 do
     begin
-      img := TImage(pnlMainForm.FindChildControl('btImage' + IntToStr(i + 1)));
+      img := TImage(pnlMainForm.FindChildControl('imageBtn' + IntToStr(i + 1)));
       bleft := (pnlMainForm.Width div 2) - (allwidth div 2) + i * bwidth + i * gap;
       img.Left := bleft;
       img.Height := bwidth;
@@ -664,7 +951,6 @@ begin
            finally
            end;
          end;
-
     end;
 end;
 
@@ -714,6 +1000,55 @@ begin
   Config.Add('exec4=/usr/bin/scratch');
   {$ENDIF}
 
+end;
+
+procedure TfrmMain.ResizeLoginForm(pnlTop, pnlLeft, pnlWidth, pnlHeight: integer);
+var
+  bleft, bwidth, bHeight, bTop, i, gap: integer;
+begin
+  gap := pnlHeight div 15;
+  bwidth := pnlWidth div 5 * 4;
+  bHeight := pnlHeight div 8;
+
+  imgUser.Width := bHeight;
+  imgUser.Height := bHeight;
+
+  imgPassword.Width := bHeight;
+  imgPassword.Height := bHeight;
+
+  edLogin.Width := bwidth - imgPassword.Width;
+  edLogin.Height := bHeight;
+  edLogin.Top := pnlTop;
+  edLogin.Left := (self.Width div 2) - (edLogin.Width div 2);
+
+  edPassword.Width := edLogin.Width;
+  edPassword.Height := edLogin.Height;
+  edPassword.Top := edLogin.Top + edLogin.Height + gap;
+  edPassword.Left := (self.Width div 2) - (edPassword.Width div 2);
+
+  imgUser.Left := edLogin.Left - imgUser.Width - gap;
+  imgUser.Top := pnlTop;
+
+  imgPassword.Left := imgUser.Left;
+  imgPassword.Top := edPassword.Top;
+
+  //btLogin.Width := pnlWidth div 3;
+  //btLogin.Height := pnlHeight div 5;
+  //btLogin.Left := (self.Width div 2) - (btLogin.Width div 2);
+  //btLogin.Top := edPassword.Top + edPassword.Height + gap;
+
+  imgbtLogin.Width := edLogin.Width div 2;
+  imgbtLogin.Height := pnlHeight div 5;
+  imgbtLogin.Left := (self.Width div 2) - (imgbtLogin.Width div 2);
+  imgbtLogin.Top := edPassword.Top + edPassword.Height + gap;
+
+  //lbLogin.Left := (self.Width div 2) - (lbLogin.Width div 2);
+  //lbLogin.Top := btLogin.Top + (btLogin.Height div 2 - lbLogin.Height div 2);
+
+  btGuest.Width := imgbtLogin.Width div 2;
+  btGuest.Height := imgbtLogin.Height div 2;;
+  btGuest.Left := (self.Width div 2) - (btGuest.Width div 2);
+  btGuest.Top := imgbtLogin.Top + imgbtLogin.Height + Gap * 2;
 end;
 
 function TfrmMain.CreateUser(user: string): boolean;
@@ -778,6 +1113,8 @@ begin
       img.OnMouseMove := @btImage1MouseMove;
       img.OnMouseLeave := @btImage1MouseLeave;
       img.OnMouseEnter := @btImage1MouseEnter;
+      img.OnMouseDown := @btImage1MouseDown;
+      img.OnMouseUp := @btImage1MouseUp;
       if FileExists(PMyProgram(ProgramList[i])^.Icon) then
         begin
           img.Picture.LoadFromFile(PMyProgram(ProgramList[i])^.Icon);
@@ -794,6 +1131,8 @@ begin
       imgClose.OnMouseMove := @btImage1MouseMove;
       imgClose.OnMouseLeave := @btImage1MouseLeave;
       imgClose.OnMouseEnter := @btImage1MouseEnter;
+      imgClose.OnMouseDown := @btImage1MouseDown;
+      imgClose.OnMouseUp := @btImage1MouseUp;
       imgClose.Tag := i;
       imgClose.BringToFront;
       imgClose.Visible := false;
