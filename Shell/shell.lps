@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectSession>
     <PathDelim Value="\"/>
-    <Version Value="12"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="31">
       <Unit0>
@@ -12,7 +12,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="78"/>
       </Unit0>
       <Unit1>
         <Filename Value="umain.pas"/>
@@ -22,9 +22,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uMain"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="96"/>
-        <CursorPos Y="123"/>
-        <UsageCount Value="77"/>
+        <TopLine Value="541"/>
+        <CursorPos X="7" Y="525"/>
+        <UsageCount Value="78"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -128,7 +128,6 @@
         <TopLine Value="191"/>
         <CursorPos X="50" Y="231"/>
         <UsageCount Value="9"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="..\..\.lazarus\onlinepackagemanager\packages\bgrabitmap-master\bgrabitmap\csscolorconst.inc"/>
@@ -239,142 +238,43 @@
         <UsageCount Value="10"/>
       </Unit30>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="8" HistoryIndex="7">
       <Position1>
         <Filename Value="umain.pas"/>
-        <Caret Line="1048" Column="62" TopLine="1020"/>
+        <Caret Line="460" Column="18" TopLine="430"/>
       </Position1>
       <Position2>
         <Filename Value="umain.pas"/>
-        <Caret Line="373" Column="16" TopLine="357"/>
+        <Caret Line="423" Column="58" TopLine="377"/>
       </Position2>
       <Position3>
         <Filename Value="umain.pas"/>
-        <Caret Line="143" Column="22" TopLine="109"/>
+        <Caret Line="141" Column="23" TopLine="112"/>
       </Position3>
       <Position4>
         <Filename Value="umain.pas"/>
-        <Caret Line="1046" Column="36" TopLine="1010"/>
+        <Caret Line="154" Column="13" TopLine="105"/>
       </Position4>
       <Position5>
         <Filename Value="umain.pas"/>
-        <Caret Line="1016" Column="27" TopLine="1008"/>
+        <Caret Line="394" Column="11" TopLine="338"/>
       </Position5>
       <Position6>
         <Filename Value="umain.pas"/>
-        <Caret Line="513" Column="21" TopLine="502"/>
+        <Caret Line="109" Column="15" TopLine="77"/>
       </Position6>
       <Position7>
         <Filename Value="umain.pas"/>
-        <Caret Line="124" Column="15" TopLine="327"/>
+        <Caret Line="775" TopLine="758"/>
       </Position7>
       <Position8>
         <Filename Value="umain.pas"/>
-        <Caret Line="369" Column="37" TopLine="352"/>
+        <Caret Line="779" Column="3" TopLine="757"/>
       </Position8>
-      <Position9>
-        <Filename Value="umain.pas"/>
-        <Caret Line="108" Column="15" TopLine="80"/>
-      </Position9>
-      <Position10>
-        <Filename Value="umain.pas"/>
-        <Caret Line="13" Column="35"/>
-      </Position10>
-      <Position11>
-        <Filename Value="umain.pas"/>
-        <Caret Line="38" Column="16"/>
-      </Position11>
-      <Position12>
-        <Filename Value="umain.pas"/>
-        <Caret Line="46" Column="23"/>
-      </Position12>
-      <Position13>
-        <Filename Value="umain.pas"/>
-        <Caret Line="58" Column="24" TopLine="9"/>
-      </Position13>
-      <Position14>
-        <Filename Value="umain.pas"/>
-        <Caret Line="123" Column="33" TopLine="75"/>
-      </Position14>
-      <Position15>
-        <Filename Value="umain.pas"/>
-        <Caret Line="124" Column="29" TopLine="76"/>
-      </Position15>
-      <Position16>
-        <Filename Value="umain.pas"/>
-        <Caret Line="125" Column="32" TopLine="77"/>
-      </Position16>
-      <Position17>
-        <Filename Value="umain.pas"/>
-        <Caret Line="126" Column="32" TopLine="78"/>
-      </Position17>
-      <Position18>
-        <Filename Value="umain.pas"/>
-        <Caret Line="143" Column="21" TopLine="95"/>
-      </Position18>
-      <Position19>
-        <Filename Value="umain.pas"/>
-        <Caret Line="212" Column="30" TopLine="163"/>
-      </Position19>
-      <Position20>
-        <Filename Value="umain.pas"/>
-        <Caret Line="214" Column="19" TopLine="165"/>
-      </Position20>
-      <Position21>
-        <Filename Value="umain.pas"/>
-        <Caret Line="497" Column="34" TopLine="464"/>
-      </Position21>
-      <Position22>
-        <Filename Value="umain.pas"/>
-        <Caret Line="519" Column="9" TopLine="479"/>
-      </Position22>
-      <Position23>
-        <Filename Value="umain.pas"/>
-        <Caret Line="701" Column="20" TopLine="652"/>
-      </Position23>
-      <Position24>
-        <Filename Value="umain.pas"/>
-        <Caret Line="762" Column="20" TopLine="713"/>
-      </Position24>
-      <Position25>
-        <Filename Value="umain.pas"/>
-        <Caret Line="787" Column="37" TopLine="738"/>
-      </Position25>
-      <Position26>
-        <Filename Value="umain.pas"/>
-        <Caret Line="840" Column="37" TopLine="791"/>
-      </Position26>
-      <Position27>
-        <Filename Value="umain.pas"/>
-        <Caret Line="47" Column="24" TopLine="16"/>
-      </Position27>
-      <Position28>
-        <Filename Value="umain.pas"/>
-        <Caret Line="365" Column="21" TopLine="328"/>
-      </Position28>
-      <Position29>
-        <Filename Value="umain.pas"/>
-        <Caret Line="47" Column="23" TopLine="19"/>
-      </Position29>
-      <Position30>
-        <Filename Value="umain.pas"/>
-        <Caret Line="225" TopLine="219"/>
-      </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes ActiveMode=""/>
+      <Modes Count="0" ActiveMode=""/>
     </RunParams>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints>
-      <Item>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="umain.pas"/>
-        <Line Value="225"/>
-      </Item>
-    </BreakPoints>
-  </Debugging>
 </CONFIG>

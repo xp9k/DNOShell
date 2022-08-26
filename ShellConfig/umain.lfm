@@ -1,374 +1,442 @@
 object frmMain: TfrmMain
   Left = 1464
-  Height = 388
+  Height = 564
   Top = 552
-  Width = 532
+  Width = 798
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Конфигуратор программ'
-  ClientHeight = 388
-  ClientWidth = 532
-  Constraints.MinHeight = 208
-  Constraints.MinWidth = 416
+  ClientHeight = 564
+  ClientWidth = 798
+  Constraints.MinHeight = 312
+  Constraints.MinWidth = 624
+  DesignTimePPI = 144
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.0.10.0'
   object Panel2: TPanel
     Left = 0
-    Height = 44
-    Top = 344
-    Width = 532
+    Height = 60
+    Top = 504
+    Width = 798
     Align = alClient
-    ClientHeight = 44
-    ClientWidth = 532
+    ClientHeight = 60
+    ClientWidth = 798
+    ParentFont = False
     TabOrder = 0
     object btClose: TButton
-      Left = 454
-      Height = 25
-      Top = 9
-      Width = 75
+      Left = 682
+      Height = 38
+      Top = 7
+      Width = 112
       Anchors = [akRight, akBottom]
       Caption = 'Выход'
       OnClick = btCloseClick
+      ParentFont = False
       TabOrder = 0
     end
     object btSave: TButton
       AnchorSideRight.Control = btClose
-      Left = 324
-      Height = 25
-      Top = 9
-      Width = 126
+      Left = 487
+      Height = 38
+      Top = 7
+      Width = 189
       Anchors = [akRight, akBottom]
-      BorderSpacing.Right = 4
+      BorderSpacing.Right = 6
       Caption = 'Сохранить конфиг'
       OnClick = btSaveClick
+      ParentFont = False
       TabOrder = 1
     end
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 344
+    Height = 504
     Top = 0
-    Width = 532
+    Width = 798
     ActivePage = TabSheet1
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
+    ParentFont = False
     TabIndex = 0
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Основные'
-      ClientHeight = 315
-      ClientWidth = 528
+      ClientHeight = 466
+      ClientWidth = 790
+      ParentFont = False
       object Panel1: TPanel
         Left = 0
-        Height = 315
+        Height = 466
         Top = 0
-        Width = 528
+        Width = 790
         Align = alClient
-        ClientHeight = 315
-        ClientWidth = 528
+        ClientHeight = 466
+        ClientWidth = 790
+        ParentFont = False
         TabOrder = 0
         object edDomain: TEdit
-          Left = 72
-          Height = 22
-          Top = 3
-          Width = 131
+          Left = 108
+          Height = 33
+          Top = 4
+          Width = 196
+          ParentFont = False
           TabOrder = 0
         end
         object Label4: TLabel
-          Left = 24
-          Height = 15
-          Top = 6
-          Width = 40
+          Left = 36
+          Height = 25
+          Top = 9
+          Width = 55
           Caption = 'Домен'
           ParentColor = False
+          ParentFont = False
         end
         object GroupBox1: TGroupBox
-          Left = 4
-          Height = 72
-          Top = 128
-          Width = 520
+          Left = 6
+          Height = 108
+          Top = 192
+          Width = 778
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Браузер'
-          ClientHeight = 55
-          ClientWidth = 516
+          ClientHeight = 78
+          ClientWidth = 774
+          ParentFont = False
           TabOrder = 1
           object edBrowser: TEdit
             AnchorSideRight.Control = btodBrowser
-            Left = 64
-            Height = 22
-            Top = 3
-            Width = 419
+            Left = 96
+            Height = 33
+            Top = 4
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 0
           end
           object Label5: TLabel
             AnchorSideRight.Control = edBrowser
-            Left = 24
-            Height = 15
-            Top = 8
-            Width = 37
+            Left = 36
+            Height = 25
+            Top = 12
+            Width = 56
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 3
+            BorderSpacing.Right = 4
             Caption = 'Файл'
             ParentColor = False
+            ParentFont = False
           end
           object btodBrowser: TButton
-            Left = 487
-            Height = 25
+            Left = 730
+            Height = 38
             Top = 0
-            Width = 24
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodBrowserClick
+            ParentFont = False
             TabOrder = 1
           end
           object edBrowserIcon: TEdit
             AnchorSideRight.Control = btodBrowserIcon
-            Left = 64
-            Height = 22
-            Top = 27
-            Width = 419
+            Left = 96
+            Height = 33
+            Top = 40
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 2
           end
           object btodBrowserIcon: TButton
-            Left = 487
-            Height = 25
-            Top = 24
-            Width = 24
+            Left = 730
+            Height = 38
+            Top = 36
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodBrowserIconClick
+            ParentFont = False
             TabOrder = 3
           end
           object Label7: TLabel
             Left = 0
-            Height = 15
-            Top = 32
-            Width = 61
+            Height = 25
+            Top = 48
+            Width = 75
             Caption = 'Картинка'
             ParentColor = False
+            ParentFont = False
           end
         end
         object GroupBox2: TGroupBox
-          Left = 4
-          Height = 72
-          Top = 200
-          Width = 520
+          Left = 6
+          Height = 108
+          Top = 300
+          Width = 778
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Доска'
-          ClientHeight = 55
-          ClientWidth = 516
+          ClientHeight = 78
+          ClientWidth = 774
+          ParentFont = False
           TabOrder = 2
           object edBoard: TEdit
             AnchorSideRight.Control = btodBoard
-            Left = 64
-            Height = 22
+            Left = 96
+            Height = 33
             Top = 0
-            Width = 419
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 0
           end
           object Label6: TLabel
             AnchorSideRight.Control = edBoard
-            Left = 24
-            Height = 15
-            Top = 6
-            Width = 37
+            Left = 36
+            Height = 25
+            Top = 9
+            Width = 56
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 3
+            BorderSpacing.Right = 4
             Caption = 'Файл'
             ParentColor = False
+            ParentFont = False
           end
           object btodBoard: TButton
-            Left = 487
-            Height = 25
+            Left = 730
+            Height = 38
             Top = 0
-            Width = 24
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodBoardClick
+            ParentFont = False
             TabOrder = 1
           end
           object edBoardIcon: TEdit
             AnchorSideRight.Control = btodBoardIcon
-            Left = 64
-            Height = 22
-            Top = 28
-            Width = 419
+            Left = 96
+            Height = 33
+            Top = 42
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 2
           end
           object btodBoardIcon: TButton
-            Left = 487
-            Height = 25
-            Top = 25
-            Width = 24
+            Left = 730
+            Height = 38
+            Top = 38
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodBoardIconClick
+            ParentFont = False
             TabOrder = 3
           end
           object Label8: TLabel
             Left = 0
-            Height = 15
-            Top = 30
-            Width = 61
+            Height = 25
+            Top = 45
+            Width = 75
             Caption = 'Картинка'
             ParentColor = False
+            ParentFont = False
           end
         end
         object Label9: TLabel
-          Left = 248
-          Height = 15
-          Top = 6
-          Width = 25
+          Left = 372
+          Height = 25
+          Top = 9
+          Width = 34
           Caption = 'Фон'
           ParentColor = False
+          ParentFont = False
         end
         object edBackground: TEdit
           AnchorSideRight.Control = btodBackground
-          Left = 280
-          Height = 22
-          Top = 3
-          Width = 212
+          Left = 420
+          Height = 33
+          Top = 4
+          Width = 316
           Anchors = [akTop, akLeft, akRight]
-          BorderSpacing.Right = 4
+          BorderSpacing.Right = 6
+          ParentFont = False
           TabOrder = 3
         end
         object btodBackground: TButton
-          Left = 496
-          Height = 25
+          Left = 742
+          Height = 38
           Top = 0
-          Width = 24
+          Width = 36
           Anchors = [akTop, akRight]
           Caption = '...'
           OnClick = btodBackgroundClick
+          ParentFont = False
           TabOrder = 4
         end
         object Label10: TLabel
-          Left = 216
-          Height = 15
-          Top = 32
-          Width = 80
+          Left = 324
+          Height = 25
+          Top = 48
+          Width = 101
           Caption = 'Цвет панели'
           ParentColor = False
+          ParentFont = False
         end
         object pnlColor: TPanel
           AnchorSideRight.Control = Button1
-          Left = 328
-          Height = 16
-          Top = 32
-          Width = 164
+          Left = 492
+          Height = 24
+          Top = 48
+          Width = 244
           Anchors = [akTop, akLeft, akRight]
-          BorderSpacing.Right = 4
+          BorderSpacing.Right = 6
+          ParentFont = False
           TabOrder = 5
         end
         object Button1: TButton
-          Left = 496
-          Height = 25
-          Top = 24
-          Width = 24
+          Left = 742
+          Height = 38
+          Top = 36
+          Width = 36
           Anchors = [akTop, akRight]
-          BorderSpacing.Right = 4
+          BorderSpacing.Right = 6
           Caption = '...'
           OnClick = Button1Click
+          ParentFont = False
           TabOrder = 6
         end
         object GroupBox3: TGroupBox
-          Left = 4
-          Height = 72
-          Top = 56
-          Width = 520
+          Left = 6
+          Height = 108
+          Top = 84
+          Width = 778
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Файловый менеджер'
-          ClientHeight = 55
-          ClientWidth = 516
+          ClientHeight = 78
+          ClientWidth = 774
+          ParentFont = False
           TabOrder = 7
           object edExplorer: TEdit
             AnchorSideRight.Control = btodExplorer
-            Left = 64
-            Height = 22
-            Top = 3
-            Width = 419
+            Left = 96
+            Height = 33
+            Top = 4
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 0
           end
           object edExplorerIcon: TEdit
             AnchorSideRight.Control = btodExplorerIcon
-            Left = 64
-            Height = 22
-            Top = 27
-            Width = 419
+            Left = 96
+            Height = 33
+            Top = 40
+            Width = 628
             Anchors = [akTop, akLeft, akRight]
-            BorderSpacing.Right = 4
+            BorderSpacing.Right = 6
+            ParentFont = False
             TabOrder = 1
           end
           object Label11: TLabel
-            Left = 24
-            Height = 15
-            Top = 8
-            Width = 33
+            Left = 36
+            Height = 25
+            Top = 12
+            Width = 41
             Caption = 'Файл'
             ParentColor = False
+            ParentFont = False
           end
           object Label12: TLabel
             Left = 0
-            Height = 15
-            Top = 27
-            Width = 61
+            Height = 25
+            Top = 40
+            Width = 75
             Caption = 'Картинка'
             ParentColor = False
+            ParentFont = False
           end
           object btodExplorer: TButton
-            Left = 487
-            Height = 25
+            Left = 730
+            Height = 38
             Top = 0
-            Width = 24
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodExplorerClick
+            ParentFont = False
             TabOrder = 2
           end
           object btodExplorerIcon: TButton
-            Left = 487
-            Height = 25
-            Top = 24
-            Width = 24
+            Left = 730
+            Height = 38
+            Top = 36
+            Width = 36
             Anchors = [akTop, akRight]
             Caption = '...'
             OnClick = btodExplorerIconClick
+            ParentFont = False
             TabOrder = 3
           end
         end
         object Label13: TLabel
-          Left = 212
-          Height = 15
-          Top = 284
-          Width = 208
+          Left = 336
+          Height = 25
+          Top = 423
+          Width = 271
           Caption = 'Расположение панели программ'
           ParentColor = False
+          ParentFont = False
         end
         object cbProgramsPos: TComboBox
-          Left = 424
-          Height = 23
-          Top = 280
-          Width = 100
-          ItemHeight = 0
+          Left = 628
+          Height = 26
+          Top = 420
+          Width = 150
+          ItemHeight = 20
           ItemIndex = 0
           Items.Strings = (
             'Снизу'
             'Слева'
             'Справа'
           )
+          ParentFont = False
           Style = csOwnerDrawFixed
           TabOrder = 8
           Text = 'Снизу'
+        end
+        object Label14: TLabel
+          Left = 8
+          Height = 25
+          Top = 423
+          Width = 128
+          Caption = 'Размер шрифта'
+          ParentColor = False
+        end
+        object edFontSize: TEdit
+          Left = 144
+          Height = 33
+          Top = 420
+          Width = 48
+          OnKeyPress = edFontSizeKeyPress
+          TabOrder = 9
+        end
+        object UpDown1: TUpDown
+          AnchorSideLeft.Control = edFontSize
+          AnchorSideLeft.Side = asrBottom
+          Left = 192
+          Height = 33
+          Top = 420
+          Width = 26
+          Associate = edFontSize
+          Max = 30
+          Min = 0
+          OnClick = UpDown1Click
+          Position = 0
+          TabOrder = 10
         end
       end
     end
@@ -376,127 +444,139 @@ object frmMain: TfrmMain
       Caption = 'Программы'
       ClientHeight = 315
       ClientWidth = 528
+      ParentFont = False
       object lbPrograms: TListBox
         AnchorSideBottom.Control = btAdd
         Left = 0
         Height = 277
         Top = 0
-        Width = 154
+        Width = 231
         Anchors = [akTop, akLeft, akBottom]
-        BorderSpacing.Bottom = 3
+        BorderSpacing.Bottom = 4
         ItemHeight = 0
         OnClick = lbProgramsClick
+        ParentFont = False
         TabOrder = 0
-        TopIndex = -1
       end
       object edName: TEdit
-        Left = 229
+        Left = 344
         Height = 22
-        Top = 3
-        Width = 222
+        Top = 4
+        Width = 68
         Anchors = [akTop, akLeft, akRight]
+        ParentFont = False
         TabOrder = 1
       end
       object edIcon: TEdit
         AnchorSideRight.Control = btodIcon
-        Left = 229
+        Left = 344
         Height = 22
-        Top = 29
+        Top = 44
         Width = 267
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Right = 4
+        BorderSpacing.Right = 6
+        ParentFont = False
         TabOrder = 2
       end
       object btodIcon: TButton
-        Left = 500
-        Height = 25
-        Top = 29
-        Width = 24
+        Left = 486
+        Height = 38
+        Top = 44
+        Width = 36
         Anchors = [akTop, akRight]
-        BorderSpacing.Right = 4
+        BorderSpacing.Right = 6
         Caption = '...'
         OnClick = btodIconClick
+        ParentFont = False
         TabOrder = 3
       end
       object btodProgram: TButton
-        Left = 500
-        Height = 25
-        Top = 55
-        Width = 24
+        Left = 486
+        Height = 38
+        Top = 82
+        Width = 36
         Anchors = [akTop, akRight]
         Caption = '...'
         OnClick = btodProgramClick
+        ParentFont = False
         TabOrder = 4
       end
       object Label1: TLabel
-        Left = 198
+        Left = 297
         Height = 15
-        Top = 6
+        Top = 9
         Width = 25
         Caption = 'Имя'
         ParentColor = False
+        ParentFont = False
       end
       object edProgram: TEdit
         AnchorSideRight.Control = btodProgram
-        Left = 229
+        Left = 344
         Height = 22
-        Top = 56
+        Top = 84
         Width = 267
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Right = 4
+        BorderSpacing.Right = 6
+        ParentFont = False
         TabOrder = 5
       end
       object Label2: TLabel
-        Left = 182
+        Left = 273
         Height = 15
-        Top = 34
+        Top = 51
         Width = 45
         Caption = 'Иконка'
         ParentColor = False
+        ParentFont = False
       end
       object Label3: TLabel
-        Left = 157
+        Left = 236
         Height = 15
-        Top = 59
+        Top = 88
         Width = 70
         Caption = 'Программа'
         ParentColor = False
+        ParentFont = False
       end
       object btSaveCurrentProgram: TButton
-        Left = 448
-        Height = 25
-        Top = 88
-        Width = 75
+        Left = 408
+        Height = 38
+        Top = 132
+        Width = 112
         Anchors = [akTop, akRight]
         Caption = 'Сохранить'
         OnClick = btSaveCurrentProgramClick
+        ParentFont = False
         TabOrder = 6
       end
       object btAdd: TButton
-        Left = 8
-        Height = 25
-        Top = 280
-        Width = 69
+        Left = 12
+        Height = 38
+        Top = 262
+        Width = 104
         Anchors = [akLeft, akBottom]
         Caption = 'Добавить'
         OnClick = btAddClick
+        ParentFont = False
         TabOrder = 7
       end
       object btRemove: TButton
-        Left = 83
-        Height = 25
-        Top = 280
-        Width = 69
+        Left = 124
+        Height = 38
+        Top = 262
+        Width = 104
         Anchors = [akLeft, akBottom]
         Caption = 'Удалить'
         OnClick = btRemoveClick
+        ParentFont = False
         TabOrder = 8
       end
       object Image1: TImage
-        Left = 230
-        Height = 51
-        Top = 83
-        Width = 51
+        Left = 345
+        Height = 76
+        Top = 124
+        Width = 76
         Proportional = True
         Stretch = True
         Transparent = True
@@ -504,8 +584,8 @@ object frmMain: TfrmMain
     end
   end
   object od: TOpenDialog
-    Left = 32
-    Top = 352
+    Left = 48
+    Top = 528
   end
   object cd: TColorDialog
     Color = clBlack
@@ -531,7 +611,7 @@ object frmMain: TfrmMain
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 24
-    Top = 48
+    Left = 36
+    Top = 72
   end
 end

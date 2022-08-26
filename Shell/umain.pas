@@ -127,7 +127,6 @@ type
     procedure ProgramButtonClick(Sender: TObject);
     procedure ProgramCloseButtonClick(Sender: TObject);
   private
-    imgbtLogin: TImageButton;
     CanClose: boolean;
     ProgramList: TList;
     ConfigFile: string;
@@ -147,7 +146,9 @@ type
     procedure CheckForProcessRun;
     function IsProcessExecuted(ProcessName: string): boolean;
     function GetProcessListIndexByName(ProcessName: string): Integer;
+    procedure TerminateAndClearProcesses;
   public
+    imgbtLogin: TImageButton;
     btExplorer: TImageButton;
     btBrowser: TImageButton;
     btBoard: TImageButton;
@@ -306,6 +307,8 @@ end;
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  FontSize: Byte;
 begin
   CanClose := false;
 
@@ -325,6 +328,11 @@ begin
       LoadDefaults;
       Config.SaveToFile(ConfigFile);
     end;
+
+  Width := Screen.Width;
+  Height := Screen.Height;
+  Top := 0;
+  Left := 0;
 
   //Кнопка Файлового менеджера
 
@@ -394,9 +402,6 @@ begin
 
   LocalizeDate;
 
-  Width:=Screen.Width;
-  Height:=Screen.Height;
-
   if FileExists(Config.Values['bg']) then
     begin
       image0.Picture.LoadFromFile(Config.Values['bg']);
@@ -428,6 +433,7 @@ begin
 
   ProcessList := TList.Create;
   ProgramList := TList.Create;
+
   LoadPrograms;
   ArrangePrograms;
 
@@ -435,6 +441,25 @@ begin
   pnlPrograms.Visible:=false;
   edLogin.Text:='';
   edPassword.Text:='';
+
+  FontSize := 0;
+
+  if Config.Values['fontsize'] <> '' then
+    FontSize := StrToIntDef(Config.Values['fontsize'], 0)
+  else
+  if Height >= 2160 then
+    FontSize := 20
+  else
+  if Height >= 1440 then
+    FontSize := 18
+  else
+  if Height >= 1080 then
+    FontSize := 14;
+
+  edLogin.Font.Size := FontSize;
+  edPassword.Font.Size := FontSize;
+  imgbtLogin.Font.Size := FontSize;
+
   pnlLogin.BringToFront;
 end;
 
@@ -447,12 +472,14 @@ begin
     begin
       if (Key = VK_F2) then
        begin
+         TerminateAndClearProcesses;
          CanClose:=true;
          frmMain.Close;
        end;
       if (Key = VK_F3) then
        begin
         try
+          TerminateAndClearProcesses;
           p := TProcess.Create(nil);
           p.InheritHandles := False;
           p.Options := [];
@@ -748,12 +775,9 @@ begin
   edLogin.Text:='';
   edPassword.Text:='';
   pnlLogin.BringToFront;
-  for i := ProcessList.Count - 1 downto 0 do
-    begin
-      PMyProcess(ProcessList[i])^.Process.Terminate(0);
-      PMyProcess(ProcessList[i])^.Process.Free;
-      ProcessList.Delete(i);
-    end;
+
+  TerminateAndClearProcesses;
+
   for i := 0 to ProgramList.Count - 1 do
     begin
       TImage(pnlPrograms.FindSubComponent('btProgramClose' + IntToStr(i + 1))).Visible := false;
@@ -1007,7 +1031,7 @@ var
   bleft, bwidth, bHeight, bTop, i, gap: integer;
 begin
   gap := pnlHeight div 15;
-  bwidth := pnlWidth div 5 * 4;
+  bwidth := pnlWidth div 7 * 5;
   bHeight := pnlHeight div 8;
 
   imgUser.Width := bHeight;
@@ -1221,6 +1245,18 @@ begin
          Result := i;
          Break;
         end;
+    end;
+end;
+
+procedure TfrmMain.TerminateAndClearProcesses;
+var
+  i: Integer;
+begin
+  for i := ProcessList.Count - 1 downto 0 do
+    begin
+      PMyProcess(ProcessList[i])^.Process.Terminate(0);
+      PMyProcess(ProcessList[i])^.Process.Free;
+      ProcessList.Delete(i);
     end;
 end;
 

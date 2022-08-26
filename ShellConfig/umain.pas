@@ -45,6 +45,7 @@ type
     edBackground: TEdit;
     edExplorer: TEdit;
     edExplorerIcon: TEdit;
+    edFontSize: TEdit;
     edName: TEdit;
     edIcon: TEdit;
     edProgram: TEdit;
@@ -57,6 +58,7 @@ type
     Label11: TLabel;
     Label12: TLabel;
     Label13: TLabel;
+    Label14: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -73,6 +75,7 @@ type
     pnlColor: TPanel;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
+    UpDown1: TUpDown;
     procedure btAddClick(Sender: TObject);
     procedure btodBackgroundClick(Sender: TObject);
     procedure btodBoardClick(Sender: TObject);
@@ -88,8 +91,10 @@ type
     procedure Button1Click(Sender: TObject);
     procedure btSaveCurrentProgramClick(Sender: TObject);
     procedure btCloseClick(Sender: TObject);
+    procedure edFontSizeKeyPress(Sender: TObject; var Key: char);
     procedure FormCreate(Sender: TObject);
     procedure lbProgramsClick(Sender: TObject);
+    procedure UpDown1Click(Sender: TObject; Button: TUDBtnType);
   private
     ConfigFile: String;
     Config: TStringList;
@@ -212,6 +217,8 @@ begin
     2: Config.Values['programspos'] := 'right';
   end;
 
+  Config.Values['fontsize'] := edFontSize.Text;
+
   ClearConfigPrograms;
   for i := 1 to 20 do
     begin
@@ -269,6 +276,11 @@ begin
   Close;
 end;
 
+procedure TfrmMain.edFontSizeKeyPress(Sender: TObject; var Key: char);
+begin
+  if not (Key in ['0'..'9', #8]) then key := #0;
+end;
+
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   {$IFDEF WINDOWS}
@@ -297,7 +309,9 @@ begin
   else if (Config.Values['programspos'] = 'right') then
     cbProgramsPos.ItemIndex:=2;
 
-  edBackground.Text:=Config.Values['bg'];
+  edFontSize.Text := Config.Values['fontsize'];
+
+  edBackground.Text := Config.Values['bg'];
   if Config.Values['bgcolor'] <> '' then pnlColor.Color := StringToColor(Config.Values['bgcolor']);
 
   ProgramList := TList.Create;
@@ -317,6 +331,11 @@ begin
   edName.Text := prog^.Name;
   Image1.Picture.Clear;
   if FileExists(prog^.Icon) then Image1.Picture.LoadFromFile(prog^.Icon);
+end;
+
+procedure TfrmMain.UpDown1Click(Sender: TObject; Button: TUDBtnType);
+begin
+
 end;
 
 function TfrmMain.LoadPrograms: boolean;
