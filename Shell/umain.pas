@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, Process, LCLType, ldapsend, StrUtils
+  Buttons, Process, LCLType, ldapsend, StrUtils, fphttpclient
   {$IFDEF LINUX}, Unix
   {$ENDIF}
   ;
@@ -63,7 +63,6 @@ type
       procedure OnLabelClick(Sender: TObject);
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
-//      procedure AfterConstruction; override;
   end;
 
   { TfrmMain }
@@ -212,18 +211,18 @@ end;
 procedure TImageButton.Resize;
 begin
   inherited Resize;
-  FLabel.Left := Left + (Width div 2) - (FLabel.Width div 2);
-  FLabel.Top := Top + (Height div 2 - FLabel.Height div 2);
+  FLabel.Left := Self.Left + ((Self.Width - FLabel.Width) div 2);
+  FLabel.Top := Self.Top + ((Self.Height - FLabel.Height) div 2);
 end;
 
 procedure TImageButton.MouseEnter(Sender: TObject);
 begin
   if FMouseLeft then
     begin
-      FOldWidth := Width;
-      FOldHeight := Height;
-      FOldTop := Top;
-      FOldLeft := Left;
+      FOldWidth := Self.Width;
+      FOldHeight := Self.Height;
+      FOldTop := Self.Top;
+      FOldLeft := Self.Left;
     end;
    FMouseLeft := False;
 end;
@@ -232,10 +231,10 @@ procedure TImageButton.MouseLeave(Sender: TObject);
 begin
   if not FMouseLeft then
     begin
-      Width := FOldWidth;
-      Height := FOldHeight;
-      Top := FOldTop;
-      Left := FOldLeft;
+      Self.Width := FOldWidth;
+      Self.Height := FOldHeight;
+      Self.Top := FOldTop;
+      Self.Left := FOldLeft;
     end;
   FMouseLeft := True;
 end;
@@ -245,10 +244,10 @@ procedure TImageButton.MouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if not FMouseLeft then
     begin
-      Width := FOldWidth;
-      Height := FOldHeight;
-      Top := FOldTop;
-      Left := FOldLeft;
+      Self.Width := FOldWidth;
+      Self.Height := FOldHeight;
+      Self.Top := FOldTop;
+      Self.Left := FOldLeft;
     end;
 end;
 
@@ -257,10 +256,10 @@ procedure TImageButton.MouseUp(Sender: TObject; Button: TMouseButton;
 begin
   if not FMouseLeft then
     begin
-      Width := FOldWidth + FOldWidth div 10;
-      Height := FOldHeight + FOldHeight div 10;
-      Top := FOldTop - ((FOldHeight div 10) div 2);
-      Left := FOldLeft - ((Width div 10) div 2);
+      Self.Width := FOldWidth + FOldWidth div 10;
+      Self.Height := FOldHeight + FOldHeight div 10;
+      Self.Top := FOldTop - ((FOldHeight div 10) div 2);
+      Self.Left := FOldLeft - ((Self.Width div 10) div 2);
     end;
 end;
 
@@ -268,10 +267,10 @@ procedure TImageButton.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Inte
 begin
   if not FMouseLeft then
     begin
-      Width := FOldWidth + FOldWidth div 10;
-      Height := FOldHeight + FOldHeight div 10;
-      Top := FOldTop - ((FOldHeight div 10) div 2);
-      Left := FOldLeft - ((Width div 10) div 2);
+      Self.Width := FOldWidth + FOldWidth div 10;
+      Self.Height := FOldHeight + FOldHeight div 10;
+      Self.Top := FOldTop - ((FOldHeight div 10) div 2);
+      Self.Left := FOldLeft - ((Self.Width div 10) div 2);
     end;
 end;
 
@@ -286,13 +285,13 @@ begin
   OnMouseDown := @MouseDown;
   OnMouseUp := @MouseUp;
 
-  FMouseLeft := True;
-
   FLabel.OnMouseMove := @LabelMouseMove;
   FLabel.OnMouseLeave := @LabelMouseLeave;
   FLabel.OnMouseDown := @MouseDown;
   FLabel.OnMouseUp := @MouseUp;
   FLabel.OnClick := @OnLabelClick;
+
+  FMouseLeft := True;
 
   Stretch := True;
   Transparent := True;
@@ -472,14 +471,12 @@ begin
     begin
       if (Key = VK_F2) then
        begin
-         TerminateAndClearProcesses;
          CanClose:=true;
          frmMain.Close;
        end;
       if (Key = VK_F3) then
        begin
         try
-          TerminateAndClearProcesses;
           p := TProcess.Create(nil);
           p.InheritHandles := False;
           p.Options := [];
@@ -551,6 +548,7 @@ begin
      CloseAction := caNone
   else
     begin
+      TerminateAndClearProcesses;
       Config.Free;
       ProgramList.Free;
       ProcessList.Free;
@@ -1259,6 +1257,7 @@ begin
       ProcessList.Delete(i);
     end;
 end;
+
 
 end.
 
