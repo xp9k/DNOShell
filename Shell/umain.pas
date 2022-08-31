@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, Process, LCLType, ldapsend, StrUtils, fphttpclient
+  Buttons, Process, LCLType, ldapsend, StrUtils, DateUtils, fphttpclient
   {$IFDEF LINUX}, Unix
   {$ENDIF}
   ;
@@ -135,6 +135,7 @@ type
     tmpHeight: integer;
     tmpTop: integer;
     tmpLeft: integer;
+    TimeZone: integer;
     ProcessList: TList;
     procedure LoadDefaults;
     procedure ResizeLoginForm(pnlTop, pnlLeft, pnlWidth, pnlHeight: integer);
@@ -464,6 +465,8 @@ begin
   imgbtLogin.Font.Size := FontSize;
 
   pnlLogin.BringToFront;
+
+  TimeZone := StrToIntDef(Config.Values['timezone'], 0);
 end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word;
@@ -949,8 +952,11 @@ begin
 end;
 
 procedure TfrmMain.Timer1Timer(Sender: TObject);
+var
+  UTC: TDateTime;
 begin
-  lbTime.Caption := FormatDateTime('d mmmm yyyyy hh:nn:ss (dddd)', Now);
+  UTC := IncHour(NOW, TimeZone);
+  lbTime.Caption := FormatDateTime('d mmmm yyyyy hh:nn:ss (dddd)', UTC);
   lbTime1.Caption := lbTime.Caption;
 end;
 
