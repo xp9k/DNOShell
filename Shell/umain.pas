@@ -265,6 +265,10 @@ end;
 
 procedure TImageButton.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
+  if FOldWidth = 0 then FOldWidth := Self.Width;
+  if FOldHeight = 0 then FOldHeight := Self.Height;
+  if FOldTop = 0 then FOldTop := Self.Top;
+  if FOldLeft = 0 then FOldLeft := Self.Left;
   if not FMouseLeft then
     begin
       Self.Width := FOldWidth + FOldWidth div 10;
@@ -670,8 +674,17 @@ var
   proc: PMyProcess;
 begin
   {$IFDEF WINDOWS}
-  profile := '--user-data-dir="' + UserFolder + '\.profile"';
-  ExecuteProcess(Config.Values['internet'], profile);
+    profile := '--user-data-dir="' + UserFolder + '\.profile"';
+    p := TProcess.Create(nil);
+    p.ShowWindow := swoShow;
+    p.Executable := Config.Values['internet'];
+    p.Parameters.Add(profile);
+    p.Execute;
+
+    New(proc);
+    proc^.Process := p;
+
+    ProcessList.Add(proc);
   {$ENDIF}
   {$IFDEF LINUX}
   try
@@ -700,6 +713,17 @@ var
   p: TProcess;
   proc: PMyProcess;
 begin
+  {$IFDEF WINDOWS}
+    p := TProcess.Create(nil);
+    p.ShowWindow := swoShow;
+    p.Executable := Config.Values['board'];
+    p.Execute;
+
+    New(proc);
+    proc^.Process := p;
+
+    ProcessList.Add(proc);
+  {$ENDIF}
   {$IFDEF LINUX}
   try
    p := TProcess.Create(nil);
@@ -996,9 +1020,9 @@ procedure TfrmMain.LoadDefaults;
 begin
   Config.Add('domain=uvao.obr.mos.ru');
   {$IFDEF WINDOWS}
-  Config.Add('explorer=explorer.exe');
-  Config.Add('browser=C:\');
-  Config.Add('board=C:\');
+  Config.Add('explorer=D:\Windows\explorer.exe');
+  Config.Add('internet=D:\Program Files (x86)\Google\Chrome\Application\chrome.exe');
+  Config.Add('board=C:\Windows\system32\mspaint.exe');
   {$ENDIF}
   {$IFDEF LINUX}
   Config.Add('explorer=dolphin');
